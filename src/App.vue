@@ -23,14 +23,29 @@
           <div
             class="mt-5 inline-block bg-white/10 backdrop-blur-sm border border-white/20 px-8 py-3 rounded-md text-lg font-bold shadow-md"
           >
+          <h1
+  class="text-7xl uppercase leading-none drop-shadow-md
+         bg-[linear-gradient(90deg,#66bb6a_0%,#ffffff_50%,#66bb6a_100%)]
+         bg-clip-text text-transparent"
+  style="font-family: Impact, 'Arial Black', sans-serif; letter-spacing: -0.01em;"
+>
+  CARAGA STATE UNIVERSITY
+</h1>
+          <h2
+  class="text-3xl uppercase leading-none text-green-100"
+  style="font-family: Impact, 'Arial Black', sans-serif; letter-spacing: -0.01em;"
+>
+  H.E.R.O LEARNING COMMONS
+</h2>
+<br>
+          <div class="mt-5 inline-block bg-white/10 backdrop-blur-sm border border-white/20 px-8 py-3 rounded-md text-lg font-bold shadow-md">
             LIBRARY OCCUPANCY AND ATTENDANCE MONITORING SYSTEM
           </div>
         </div>
       </div>
 
-      <!-- CONTENT -->
-      <div class="flex-1 flex px-10 pb-15 gap-10 overflow-hidden">
-        <!-- LEFT PANEL -->
+      <div class="flex-1 flex flex-row-reverse px-10 pb-15 gap-10 overflow-hidden">
+        
         <div class="w-[350px] flex flex-col justify-center gap-6">
           <!-- LOGIN CARD -->
           <div class="w-full bg-white/10 p-6 rounded-2xl border border-white/20 shadow-2xl">
@@ -125,6 +140,7 @@
         </div>
       </div>
     </div>
+  </div>
   </div>
 </template>
 
