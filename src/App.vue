@@ -126,6 +126,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from "vue"
 
+import { db } from "@/firebase"
+
+console.log("Firestore instance:", db)
+
 /* =============================
    STUDENT TYPE (Fix TS Error)
 ============================= */
