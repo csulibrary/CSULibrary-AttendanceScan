@@ -1,5 +1,5 @@
 <template>
-  <div class="relative h-screen w-screen text-white flex flex-col overflow-hidden bg-[#0b3d1f]">
+  <div class="relative h-screen w-screen text-white flex flex-col">
     
     <div 
       class="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-20"
@@ -14,20 +14,20 @@
         </div>
         <div class="text-center">
         <h1
-  class="text-7xl uppercase leading-none drop-shadow-md
-         bg-[linear-gradient(90deg,#FFC300_0%,#ffffff_50%,#1b5e20_100%)]
-         bg-clip-text text-transparent"
-  style="font-family: Impact, 'Poppins', sans-serif; letter-spacing: -0.01em;"
->
-  CARAGA STATE UNIVERSITY
-</h1>
+          class="text-7xl uppercase leading-none drop-shadow-md
+                bg-[linear-gradient(90deg,#FFC300_0%,#ffffff_50%,#1b5e20_100%)]
+                bg-clip-text text-transparent"
+          style="font-family: Impact, 'Poppins', sans-serif; letter-spacing: -0.01em;"
+        >
+          CARAGA STATE UNIVERSITY
+        </h1>
           <h2
-  class="text-3xl uppercase leading-none text-green-100"
-  style="font-family: Impact, 'Poppins', sans-serif; letter-spacing: -0.01em;"
->
-  H.E.R.O LEARNING COMMONS
-</h2>
-<br>
+              class="text-3xl uppercase leading-none text-green-100"
+              style="font-family: Impact, 'Poppins', sans-serif; letter-spacing: -0.01em;"
+            >
+              HERO LEARNING COMMONS
+            </h2>
+            <br>
           <div class="mt-5 inline-block bg-white/10 backdrop-blur-sm border border-white/20 px-8 py-3 rounded-md text-lg font-bold shadow-md">
             LIBRARY OCCUPANCY AND ATTENDANCE MONITORING SYSTEM
           </div>
@@ -84,7 +84,7 @@
                   <td class="p-3 border border-white/10 font-bold text-lg">{{ student.name }}</td>
                   <td class="p-3 border border-white/10 font-bold text-lg">{{ student.course }}</td>
                   <td class="p-3 border border-white/10 font-bold text-lg">{{ student.year }}</td>
-                  <td class="p-3 border border-white/10 text-green-300 font-bold font-bold text-lg">{{ student.logTime }}</td>
+                  <td class="p-3 border border-white/10 font-bold text-lg">{{ student.logTime }}</td>
                 </tr>
               </tbody>
             </table>
