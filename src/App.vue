@@ -1,53 +1,39 @@
 <template>
   <div class="relative h-screen w-screen text-white flex flex-col overflow-hidden bg-[#0b3d1f]">
-    <!-- Background Image -->
     <div
       class="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-20"
       style="background-image: url('/hero-outside.jpg')"
     ></div>
 
     <div class="relative z-10 flex flex-col h-full w-full">
-      <!-- HEADER -->
       <div class="flex items-center justify-center pt-8 pb-6 px-10 relative">
         <div class="absolute left-10">
           <img src="/csu-logo.png" alt="CSU Logo" class="h-45 w-40 object-contain drop-shadow-lg" />
         </div>
-
         <div class="text-center">
-          <h1 class="text-5xl font-extrabold tracking-wide drop-shadow-md">
+          <h1
+            class="text-7xl uppercase leading-none drop-shadow-md bg-[linear-gradient(90deg,#66bb6a_0%,#ffffff_50%,#66bb6a_100%)] bg-clip-text text-transparent"
+            style="font-family: Impact, 'Arial Black', sans-serif; letter-spacing: -0.01em"
+          >
             CARAGA STATE UNIVERSITY
           </h1>
-
-          <h2 class="text-3xl font-bold mt-2 text-green-100">H.E.R.O LEARNING COMMONS</h2>
-
+          <h2
+            class="text-3xl uppercase leading-none text-green-100"
+            style="font-family: Impact, 'Arial Black', sans-serif; letter-spacing: -0.01em"
+          >
+            H.E.R.O LEARNING COMMONS
+          </h2>
+          <br />
           <div
             class="mt-5 inline-block bg-white/10 backdrop-blur-sm border border-white/20 px-8 py-3 rounded-md text-lg font-bold shadow-md"
           >
-          <h1
-  class="text-7xl uppercase leading-none drop-shadow-md
-         bg-[linear-gradient(90deg,#66bb6a_0%,#ffffff_50%,#66bb6a_100%)]
-         bg-clip-text text-transparent"
-  style="font-family: Impact, 'Arial Black', sans-serif; letter-spacing: -0.01em;"
->
-  CARAGA STATE UNIVERSITY
-</h1>
-          <h2
-  class="text-3xl uppercase leading-none text-green-100"
-  style="font-family: Impact, 'Arial Black', sans-serif; letter-spacing: -0.01em;"
->
-  H.E.R.O LEARNING COMMONS
-</h2>
-<br>
-          <div class="mt-5 inline-block bg-white/10 backdrop-blur-sm border border-white/20 px-8 py-3 rounded-md text-lg font-bold shadow-md">
             LIBRARY OCCUPANCY AND ATTENDANCE MONITORING SYSTEM
           </div>
         </div>
       </div>
 
       <div class="flex-1 flex flex-row-reverse px-10 pb-15 gap-10 overflow-hidden">
-        
         <div class="w-[350px] flex flex-col justify-center gap-6">
-          <!-- LOGIN CARD -->
           <div class="w-full bg-white/10 p-6 rounded-2xl border border-white/20 shadow-2xl">
             <div class="flex flex-col items-center gap-4">
               <label
@@ -55,7 +41,6 @@
               >
                 Scan Student ID
               </label>
-
               <input
                 v-model="idInput"
                 type="text"
@@ -63,7 +48,6 @@
                 class="w-full text-center bg-black/40 text-white text-2xl py-4 rounded-xl border-2 border-green-600 focus:outline-none focus:ring-4 focus:ring-green-400 transition-all"
                 @keyup.enter="handleLogin"
               />
-
               <button
                 @click="handleLogin"
                 class="w-full bg-green-700 hover:bg-green-600 py-4 rounded-xl text-xl font-bold shadow-xl transition-all active:scale-95"
@@ -73,20 +57,14 @@
             </div>
           </div>
 
-          <!-- DATE & TIME -->
           <div
             class="bg-black/30 border border-white/10 text-white w-full px-5 py-6 rounded-2xl shadow-xl text-center"
           >
-            <div class="text-sm opacity-70 tracking-widest uppercase">
-              {{ formattedDate }}
-            </div>
-            <div class="text-4xl font-mono font-bold text-green-400 mt-1">
-              {{ formattedTime }}
-            </div>
+            <div class="text-sm opacity-70 tracking-widest uppercase">{{ formattedDate }}</div>
+            <div class="text-4xl font-mono font-bold text-green-400 mt-1">{{ formattedTime }}</div>
           </div>
         </div>
 
-        <!-- RIGHT PANEL (TABLE) -->
         <div class="flex-1 flex flex-col min-h-0">
           <div
             class="flex-1 bg-white/10 rounded-lg overflow-auto border border-white/20 shadow-2xl"
@@ -111,26 +89,17 @@
                   </th>
                 </tr>
               </thead>
-
               <tbody class="divide-y divide-white/10">
                 <tr
                   v-for="(student, index) in students"
                   :key="index"
                   class="text-center hover:bg-white/5 transition-colors"
                 >
-                  <td class="p-3 border border-white/10 font-bold text-lg">
-                    {{ student.id }}
-                  </td>
-                  <td class="p-3 border border-white/10 font-bold text-lg">
-                    {{ student.name }}
-                  </td>
-                  <td class="p-3 border border-white/10 font-bold text-lg">
-                    {{ student.course }}
-                  </td>
-                  <td class="p-3 border border-white/10 font-bold text-lg">
-                    {{ student.year }}
-                  </td>
-                  <td class="p-3 border border-white/10 text-green-300 font-bold text-lg">
+                  <td class="p-3 border border-white/10 font-bold text-lg">{{ student.id }}</td>
+                  <td class="p-3 border border-white/10 font-bold text-lg">{{ student.name }}</td>
+                  <td class="p-3 border border-white/10 font-bold text-lg">{{ student.course }}</td>
+                  <td class="p-3 border border-white/10 font-bold text-lg">{{ student.year }}</td>
+                  <td class="p-3 border border-white/10 text-green-300 font-bold font-bold text-lg">
                     {{ student.logTime }}
                   </td>
                 </tr>
@@ -141,17 +110,17 @@
       </div>
     </div>
   </div>
-  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+
 import { db } from '@/firebase'
 
 console.log('Firestore instance:', db)
 
 /* =============================
-   STUDENT TYPE
+   STUDENT TYPE (Fix TS Error)
 ============================= */
 interface Student {
   id: string
