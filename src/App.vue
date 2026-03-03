@@ -22,22 +22,13 @@
           CARAGA STATE UNIVERSITY
         </h1>
           <h2
-<<<<<<< HEAD
               class="text-3xl uppercase leading-none text-green-100"
               style="font-family: Impact, 'Poppins', sans-serif; letter-spacing: -0.01em;"
             >
               HERO LEARNING COMMONS
             </h2>
             <br>
-=======
-  class="text-3xl uppercase leading-none text-green-100"
-  style="font-family: Impact, 'Poppins', sans-serif; letter-spacing: -0.01em;"
->
-  HERO LEARNING COMMONS
-</h2>
-<br>
->>>>>>> 48266d42b78d023ed7e2e14979142e317cac7c1c
-          <div class="mt-5 inline-block bg-white/10 backdrop-blur-sm border border-white/20 px-8 py-3 rounded-md text-lg font-bold shadow-md">
+          <div class="mt-5 inline-block bg-white/10 backdrop-blur-sm border border-white/20 px-8 py-3 rounded-md font-semibold text-2xl text-[#ffffff] shadow-md">
             LIBRARY OCCUPANCY AND ATTENDANCE MONITORING SYSTEM
           </div>
         </div>
@@ -76,29 +67,25 @@
 
         </div>
 
-        <div class="flex-1 flex flex-col min-h-0">
+        <div class="flex-1 flex flex-col min-h-0 pt-7">
           <div class="flex-1 bg-white/10 rounded-lg overflow-auto border border-white/20 shadow-2xl">
-            <table class="w-full text-white border-collapse">
+            <table class="w-full text-white border-collapse [text-shadow:0_1px_2px_rgba(0,0,0,0.6)]">
               <thead class="bg-white/20 sticky top-0 z-20">
                 <tr>
-                  <th class="border border-white/10 p-4 font-bold text-lg uppercase tracking-wider">ID Number</th>
-                  <th class="border border-white/10 p-4 font-bold text-lg uppercase tracking-wider">Name</th>
-                  <th class="border border-white/10 p-4 font-bold text-lg uppercase tracking-wider">Course</th>
-                  <th class="border border-white/10 p-4 font-bold text-lg uppercase tracking-wider">Year</th>
-                  <th class="border border-white/10 p-4 font-bold text-lg uppercase tracking-wider">Log Time</th>
+                  <th class="border border-white/10 p-4 font-extrabold text-2xl text-[#ffffff] uppercase tracking-widest text-white">ID Number</th>
+                  <th class="border border-white/10 p-4 font-extrabold text-2xl text-[#ffffff] uppercase tracking-widest text-white">Name</th>
+                  <th class="border border-white/10 p-4 font-extrabold text-2xl text-[#ffffff] uppercase tracking-widest text-white">Course</th>
+                  <th class="border border-white/10 p-4 font-extrabold text-2xl text-[#ffffff] uppercase tracking-widest text-white">Year</th>
+                  <th class="border border-white/10 p-4 font-extrabold text-2xl text-[#ffffff] uppercase tracking-widest text-white">Log Time</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-white/10">
                 <tr v-for="(student, index) in students" :key="index" class="text-center hover:bg-white/5 transition-colors">
-                  <td class="p-3 border border-white/10 font-bold text-lg">{{ student.id }}</td>
-                  <td class="p-3 border border-white/10 font-bold text-lg">{{ student.name }}</td>
-                  <td class="p-3 border border-white/10 font-bold text-lg">{{ student.course }}</td>
-                  <td class="p-3 border border-white/10 font-bold text-lg">{{ student.year }}</td>
-<<<<<<< HEAD
-                  <td class="p-3 border border-white/10 font-bold text-lg">{{ student.logTime }}</td>
-=======
-                  <td class="p-3 border border-white/10 font-bold font-bold text-lg">{{ student.logTime }}</td>
->>>>>>> 48266d42b78d023ed7e2e14979142e317cac7c1c
+                  <td class="p-4 border border-white/10 font-extrabold text-2xl text-[#ffffff] tracking-wide leading-relaxed">{{ student.id }}</td>
+                  <td class="p-4 border border-white/10 font-extrabold text-2xl text-[#ffffff] tracking-wide leading-relaxed">{{ student.name }}</td>
+                  <td class="p-4 border border-white/10 font-extrabold text-2xl text-[#ffffff] tracking-wide leading-relaxed">{{ student.course }}</td>
+                  <td class="p-4 border border-white/10 font-extrabold text-2xl text-[#ffffff] tracking-wide leading-relaxed">{{ student.year }}</td>
+                  <td class="p-4 border border-white/10 font-extrabold text-2xl text-[#ffffff] tracking-wide leading-relaxed">{{ student.logTime }}</td>
                 </tr>
               </tbody>
             </table>
