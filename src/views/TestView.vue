@@ -40,12 +40,10 @@
                         <div id="qr-reader" class="flex-1 w-full bg-black/20"></div>
 
                         <div class="p-4 bg-black/40 flex flex-col gap-3">
-<input
-  v-model="idInput"
-  type="text"
-  placeholder="Manual Entry..."
-  @keyup.enter="(e: KeyboardEvent) => handleLogin()"
-/>
+                            <input v-model="idInput" type="text" placeholder="Manual Entry..."
+                                @keyup.enter="(e: KeyboardEvent) => handleLogin()"
+                                class="w-full text-center bg-white/5 text-white py-3 rounded-lg border border-white/20 focus:outline-none focus:border-green-400 mb-2" />
+                            
                             <button 
                                 v-if="!isScannerRunning"
                                 @click="startScanner" 
