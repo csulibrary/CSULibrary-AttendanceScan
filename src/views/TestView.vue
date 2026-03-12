@@ -126,8 +126,8 @@ const handleLogin = async (decodedText?: string) => {
 
     try {
         let studentId = ""
-        let fullName = "Manual Entry"
-        let course = "BSIT"
+        let fullName = "Unregistered Name"
+        let course = "N/A"
 
         if (rawData.includes('|')) {
             const parts = rawData.split('|')
