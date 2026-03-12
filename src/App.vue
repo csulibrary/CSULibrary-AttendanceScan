@@ -71,21 +71,21 @@
           <div class="flex-1 bg-white/10 rounded-lg overflow-auto border border-white/20 shadow-2xl">
             <table class="w-full text-white border-collapse [text-shadow:0_1px_2px_rgba(0,0,0,0.6)]">
               <thead class="bg-white/20 sticky top-0 z-20">
-                <tr>
-                  <th class="border border-white/10 p-4 font-extrabold text-2xl text-[#ffffff] uppercase tracking-widest text-white">ID Number</th>
-                  <th class="border border-white/10 p-4 font-extrabold text-2xl text-[#ffffff] uppercase tracking-widest text-white">Name</th>
-                  <th class="border border-white/10 p-4 font-extrabold text-2xl text-[#ffffff] uppercase tracking-widest text-white">Course</th>
-                  <th class="border border-white/10 p-4 font-extrabold text-2xl text-[#ffffff] uppercase tracking-widest text-white">Year</th>
-                  <th class="border border-white/10 p-4 font-extrabold text-2xl text-[#ffffff] uppercase tracking-widest text-white">Log Time</th>
-                </tr>
+               <tr>
+  <th class="border border-white/10 p-4 font-black text-2xl text-white uppercase tracking-widest drop-shadow-md">ID Number</th>
+  <th class="border border-white/10 p-4 font-black text-2xl text-white uppercase tracking-widest drop-shadow-md">Name</th>
+  <th class="border border-white/10 p-4 font-black text-2xl text-white uppercase tracking-widest drop-shadow-md">Course</th>
+  <th class="border border-white/10 p-4 font-black text-2xl text-white uppercase tracking-widest drop-shadow-md">Year</th>
+  <th class="border border-white/10 p-4 font-black text-2xl text-white uppercase tracking-widest drop-shadow-md">Log Time</th>
+</tr>
               </thead>
               <tbody class="divide-y divide-white/10">
-                <tr v-for="(student, index) in students" :key="index" class="text-center hover:bg-white/5 transition-colors">
-                  <td class="p-4 border border-white/10 font-extrabold text-2xl text-[#ffffff] tracking-wide leading-relaxed">{{ student.id }}</td>
-                  <td class="p-4 border border-white/10 font-extrabold text-2xl text-[#ffffff] tracking-wide leading-relaxed">{{ student.name }}</td>
-                  <td class="p-4 border border-white/10 font-extrabold text-2xl text-[#ffffff] tracking-wide leading-relaxed">{{ student.course }}</td>
-                  <td class="p-4 border border-white/10 font-extrabold text-2xl text-[#ffffff] tracking-wide leading-relaxed">{{ student.year }}</td>
-                  <td class="p-4 border border-white/10 font-extrabold text-2xl text-[#ffffff] tracking-wide leading-relaxed">{{ student.logTime }}</td>
+                <tr v-for="(student, index) in students" :key="index" class="text-center hover:bg-white/10 transition-colors">
+                  <td class="p-4 border border-white/10 font-bold text-2xl text-[#ffffff] tracking-wide leading-relaxed">{{ student.id }}</td>
+                  <td class="p-4 border border-white/10 font-bold text-2xl text-[#ffffff] tracking-wide leading-relaxed">{{ student.name }}</td>
+                  <td class="p-4 border border-white/10 font-bold text-2xl text-[#ffffff] tracking-wide leading-relaxed">{{ student.course }}</td>
+                  <td class="p-4 border border-white/10 font-bold text-2xl text-[#ffffff] tracking-wide leading-relaxed">{{ student.year }}</td>
+                  <td class="p-4 border border-white/10 font-bold text-2xl text-[#ffffff] tracking-wide leading-relaxed">{{ student.logTime }}</td>
                 </tr>
               </tbody>
             </table>
