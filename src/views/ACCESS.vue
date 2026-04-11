@@ -46,6 +46,7 @@
       <option disabled value="">Select Attendance</option>
       <option value="library">Library Attendance</option>
       <option value="event">Event Attendance</option>
+      <option value="visitors">Visitors' Attendance</option>
     </select>
   </div>
 </div>
@@ -358,6 +359,16 @@ const handleAttendanceChange = async () => {
     await fetchEvents()
     showEventModal.value = true
   }
+
+  if (attendanceType.value === 'visitors') {
+    goToVisitors()
+    showEventModal.value = true
+  }
+
+  if (attendanceType.value === 'library') {
+    goToLibrary()
+    showEventModal.value = true
+  }
 }
 
 const fetchEvents = async () => {
@@ -383,6 +394,24 @@ const goToEvent = () => {
 
   showEventModal.value = false
 }
+
+const goToVisitors = () => {
+  router.push({
+    name: 'visitors',
+  })
+
+  showEventModal.value = false
+}
+
+const goToLibrary = () => {
+  router.push({
+    name: 'access',
+  })
+
+  showEventModal.value = false
+}
+
+
 </script>
 
 <style>
@@ -443,7 +472,7 @@ const goToEvent = () => {
 
 .access-dropdown-wrapper::after {
   content: "▾";
-  position: absolute;
+  position: absolute; 
   right: 14px;
   top: 50%;
   transform: translateY(-50%);
