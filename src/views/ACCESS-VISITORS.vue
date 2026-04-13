@@ -102,7 +102,6 @@
     {{ log.full_name }}
   </td>
 
-
   <td class="p-4 font-mono text-lg opacity-80 font-bold">
     {{
       new Date(log.time_in).toLocaleTimeString([], {
@@ -111,7 +110,6 @@
       })
     }}
   </td>
-
 
 </tr>
               </tbody>
@@ -122,7 +120,6 @@
     </div>
   </div>
 
-  <!-- Event Selection Modal (matched to ACCESS.vue design) -->
   <Transition name="modal">
     <div
       v-if="showEventModal"
