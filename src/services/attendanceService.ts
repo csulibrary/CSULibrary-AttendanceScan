@@ -10,7 +10,8 @@ export const getAttendanceLogs = async () => {
         id_number,
         first_name,
         last_name,
-        program
+        program,
+        year_level
       )
     `)
     .order("time_in", { ascending: false })
@@ -29,6 +30,21 @@ export const createAttendanceLog = async (studentId: string) => {
         student_id: studentId,
         attendance_type: "library",
         time_in: new Date()
+      }
+    ])
+
+  if (error) throw error
+  return data
+}
+
+export const createTimeOut = async (studentId: string) => {
+  const { data, error } = await supabase
+    .from("attendance_logs")
+    .insert([
+      {
+        student_id: studentId,
+        attendance_type: "library",
+        time_out: new Date()
       }
     ])
 
