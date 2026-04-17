@@ -159,7 +159,7 @@ const handleLogin = async (decodedText?: string) => {
         if (!error) {
             idInput.value = ""
             fetchLogs() 
-            const audio = new Audio('/beep.mp3')
+            const audio = new Audio('/rob.mp3')
             audio.play().catch(() => console.warn("Audio play blocked"))
         } else {
             console.error("Supabase Error:", error.message)
