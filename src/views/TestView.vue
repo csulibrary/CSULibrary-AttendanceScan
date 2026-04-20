@@ -169,10 +169,10 @@ const handleLogin = async (decodedText?: string) => {
 
   isProcessing.value = true
 
-    try {
-        let studentId = ""
-        let fullName = "Unregistered Name"
-        let course = "N/A"
+  try {
+    let studentId = ''
+    let fullName = 'Manual Entry'
+    let course = 'BSIT'
 
     if (rawData.includes('|')) {
       const parts = rawData.split('|')
@@ -185,34 +185,12 @@ const handleLogin = async (decodedText?: string) => {
         fullName = nameString.split(':')[1]?.trim() ?? 'Unknown Student'
       }
 
-            const progString = parts[3] || ""
-            if (progString.includes('PROG:')) {
-                course = progString.split(':')[1]?.trim() ?? "BSIT"
-            }
-        } else {
-            studentId = rawData.trim()
-        }
-
-        const { error } = await supabase
-            .from('attendance_logs')
-            .insert([{
-                student_id: studentId,
-                full_name: fullName,
-                course: course
-            }])
-
-        if (!error) {
-            idInput.value = ""
-            fetchLogs() 
-            const audio = new Audio('/rob.mp3')
-            audio.play().catch(() => console.warn("Audio play blocked"))
-        } else {
-            console.error("Supabase Error:", error.message)
-        }
-    } catch (err) {
-        console.error("Processing Error:", err)
-    } finally {
-        setTimeout(() => { isProcessing.value = false }, 3000)
+      const progString = parts[3] || ''
+      if (progString.includes('PROG:')) {
+        course = progString.split(':')[1]?.trim() ?? 'BSIT'
+      }
+    } else {
+      studentId = rawData.trim()
     }
 
     const { error } = await supabase.from('attendance_logs').insert([
