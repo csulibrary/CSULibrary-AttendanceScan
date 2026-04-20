@@ -61,21 +61,61 @@
             </div>
           </div>
 
-          <div class="bg-white/10 border rounded-2xl overflow-hidden flex flex-col shadow-2xl shrink-0">
-            <div class="p-3 bg-white/10 flex justify-between items-center px-4 shrink-0">
-              <span class="text-xs font-black tracking-widest uppercase">Visitor Entry</span>
-            </div>
-            <div class="p-4 bg-black/40 flex flex-col gap-3">
-              <input v-model="idInput" type="text" placeholder="Enter visitor name..."
-                @keyup.enter="() => handleLogin()"
-                class="w-full p-2 rounded border border-white/80 text-white bg-transparent text-sm lg:text-base" />
-              <button @click="handleLogin()"
-                class="w-full py-3 rounded-lg font-bold transition-all bg-green-700 hover:bg-green-600 border border-green-500 shadow-md text-sm lg:text-base">
-                ENTER
-              </button>
-            </div>
+    <div class="bg-white/10 border rounded-2xl overflow-hidden flex flex-col shadow-2xl shrink-0">
+      <div class="p-3 bg-white/10 flex justify-between items-center px-4 shrink-0">
+        <span class="text-xs font-black tracking-widest uppercase">Visitor Details</span>
+      </div>
+      <div class="p-4 bg-black/40 flex flex-col gap-4">
+        <div class="flex flex-col gap-2">
+          <label class="text-[11px] font-semibold tracking-[0.18em] uppercase text-white/60">Name</label>
+          <input
+            v-model="idInput"
+            type="text"
+            placeholder="Enter visitor name"
+            class="w-full p-3 rounded border border-white/80 text-white bg-transparent text-sm lg:text-base"
+          />
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label class="text-[11px] font-semibold tracking-[0.18em] uppercase text-white/60">Email or contact number</label>
+          <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+            <input
+              v-model="emailInput"
+              type="email"
+              placeholder="Email address"
+              class="p-3 rounded border border-white/80 text-white bg-transparent text-sm lg:text-base w-full"
+            />
+            <span class="text-white/60 font-semibold text-sm uppercase whitespace-nowrap">OR</span>
+            <input
+              v-model="cellphoneInput"
+              type="text"
+              placeholder="Contact no."
+              class="p-3 rounded border border-white/80 text-white bg-transparent text-sm lg:text-base w-full"
+            />
           </div>
         </div>
+
+        <div class="flex flex-col gap-2">
+          <label class="text-[11px] font-semibold tracking-[0.18em] uppercase text-white/60">Institution/School</label>
+          <input
+            v-model="institutionInput"
+            type="text"
+            placeholder="Institution / School"
+            @keyup.enter="handleLogin()"
+            class="w-full p-3 rounded border border-white/80 text-white bg-transparent text-sm lg:text-base"
+          />
+        </div>
+
+        <button
+          @click="handleLogin()"
+          :disabled="!canAddVisitor || isProcessing"
+          class="w-full py-3 rounded-lg font-bold transition-all border border-green-500 shadow-md text-sm lg:text-base disabled:opacity-50 disabled:cursor-not-allowed bg-green-700 hover:bg-green-600"
+        >
+          {{ isProcessing ? 'ADDING...' : 'ADD' }}
+        </button>
+      </div>
+    </div>
+  </div>
 
         <!-- Left Column: Attendance Table -->
         <div class="flex-1 flex flex-col min-h-0 overflow-hidden">
@@ -84,18 +124,28 @@
             <table class="w-full text-white border-collapse">
               <thead class="sticky top-0 z-20 bg-white/40 backdrop-blur-md">
                 <tr class="text-left">
-                  <th class="p-4 uppercase text-sm font-black tracking-widest border-b border-white/10">
+                  <th
+                    class="p-4 uppercase text-xs lg:text-sm font-black tracking-widest border-b border-white/10 leading-tight"
+                  >
                     Name
                   </th>
-                  <th class="p-4 uppercase text-sm font-black tracking-widest border-b border-white/10">
-                    Time-In
+                  <th
+                    class="p-4 uppercase text-xs lg:text-sm font-black tracking-widest border-b border-white/10 leading-tight"
+                  >
+                    Institution/School
+                  </th>
+                  <th
+                    class="p-4 uppercase text-xs lg:text-sm font-black tracking-widest border-b border-white/10 leading-tight"
+                  >
+                    Time in
                   </th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-white/5">
                 <tr v-for="log in attendanceLogs" :key="log.id" class="hover:bg-white/5 transition-colors">
                   <td class="p-4 font-bold text-xl uppercase">{{ log.full_name }}</td>
-                  <td class="p-4 font-mono text-lg opacity-80 font-bold">
+                  <td class="p-4 text-base opacity-80">{{ log.institution_school || log.institution || pendingMeta[log.id]?.institution || '—' }}</td>
+                  <td class="p-4 text-base opacity-80 font-mono font-semibold">
                     {{
                       log.time_in
                         ? new Date(log.time_in).toLocaleTimeString([], {
@@ -196,7 +246,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { createVisitorLog, getVisitorLogs } from '@/services/attendanceVisitorsService'
+import {
+  createVisitorLog,
+  getVisitorLogs,
+  updateVisitorTimeOut,
+} from '@/services/attendanceVisitorsService'
 import { supabase } from '@/supabase'
 
 // ─── ICONS ────────────────────────────────────────────────────────────────────
@@ -244,8 +298,13 @@ interface SchoolInfo {
 
 // ─── STATE ────────────────────────────────────────────────────────────────────
 const idInput = ref('')
+const emailInput = ref('')
+const cellphoneInput = ref('')
+const institutionInput = ref('')
 const attendanceLogs = ref<any[]>([])
 const isProcessing = ref(false)
+const optionalTimeOutMap = ref<Record<string, string>>({})
+const pendingMeta = ref<Record<string, { email: string; cellphone: string; institution: string }>>({})
 const currentTime = ref(new Date())
 let timer: any
 let schoolInfoTimer: any
@@ -280,6 +339,15 @@ const filteredEvents = computed(() => {
   const q = eventSearch.value.toLowerCase().trim()
   if (!q) return events.value
   return events.value.filter((e) => e.title.toLowerCase().includes(q))
+})
+
+const canAddVisitor = computed(() => {
+  const hasContact = emailInput.value.trim().length > 0 || cellphoneInput.value.trim().length > 0
+  return (
+    idInput.value.trim().length > 0 &&
+    hasContact &&
+    institutionInput.value.trim().length > 0
+  )
 })
 
 // ─── FETCH SCHOOL INFO ────────────────────────────────────────────────────────
@@ -321,14 +389,47 @@ const handleLogin = async (decodedText?: string) => {
   if (isProcessing.value) return
 
   const rawData = decodedText || idInput.value
-  if (!rawData.trim()) return
+  const submittedName = rawData.trim()
+  const submittedEmail = emailInput.value.trim()
+  const submittedCellphone = cellphoneInput.value.trim()
+  const submittedInstitution = institutionInput.value.trim()
+  const submittedContact = submittedEmail && submittedCellphone
+    ? `${submittedEmail}/${submittedCellphone}`
+    : (submittedCellphone || submittedEmail)
+
+  if (!submittedName || !submittedContact || !submittedInstitution) return
 
   isProcessing.value = true
 
   try {
-    await createVisitorLog(rawData.trim())
+    const createdLog = await createVisitorLog({
+      fullName: submittedName,
+      contact: submittedContact,
+      institution: submittedInstitution,
+    })
+
+    const localRow = {
+      ...(createdLog || {}),
+      id: createdLog?.id ?? `${Date.now()}`,
+      full_name: submittedName,
+      contact: submittedContact,
+      institution: submittedInstitution,
+      time_in: createdLog?.time_in ?? new Date().toISOString(),
+    }
+
+    attendanceLogs.value = [localRow, ...attendanceLogs.value]
+    pendingMeta.value[localRow.id] = {
+      email: submittedEmail,
+      cellphone: submittedContact,
+      institution: submittedInstitution,
+    }
+
     await fetchVisitorLogs()
+
     idInput.value = ''
+    emailInput.value = ''
+    cellphoneInput.value = ''
+    institutionInput.value = ''
   } catch (err) {
     console.error('Attendance error:', err)
   } finally {
@@ -336,6 +437,21 @@ const handleLogin = async (decodedText?: string) => {
       isProcessing.value = false
     }, 2000)
   }
+}
+
+const markOptionalTimeOut = (logId: string) => {
+  updateVisitorTimeOut(logId)
+    .then(async () => {
+      delete optionalTimeOutMap.value[logId]
+      await fetchVisitorLogs()
+    })
+    .catch((err) => {
+      console.error('Failed to update visitor time out:', err)
+      optionalTimeOutMap.value[logId] = new Date().toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    })
 }
 
 // ─── FETCH EVENTS ─────────────────────────────────────────────────────────────
