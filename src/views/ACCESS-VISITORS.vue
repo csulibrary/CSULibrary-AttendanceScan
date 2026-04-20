@@ -8,7 +8,6 @@
     <div class="relative z-10 flex flex-col h-full w-full">
       <!-- Header -->
       <div class="flex items-center justify-center pt-6 pb-3 px-10 shrink-0">
-        <!-- Left Logo -->
         <div class="absolute left-10">
           <img
             :src="schoolInfo.logo_path || '/csu-logo.png'"
@@ -17,7 +16,6 @@
           />
         </div>
 
-        <!-- Center Title -->
         <div class="text-center">
           <h1
             class="text-6xl uppercase leading-none font-black drop-shadow-md bg-[linear-gradient(90deg,#FFC300_0%,#ffffff_50%,#1b5e20_100%)] bg-clip-text text-transparent"
