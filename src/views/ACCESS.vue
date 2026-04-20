@@ -76,7 +76,7 @@
               <input
                 v-model="idInput"
                 type="text"
-                placeholder="Ex. 221-293842"
+                placeholder="Ex. 221-12345"
                 @keyup.enter="() => handleLogin()"
                 class="w-full p-2 rounded border border-white/80 text-white bg-transparent text-sm lg:text-base"
               />
@@ -132,6 +132,11 @@
                         : '—'
                     }}
                   </td>
+                  <!-- <td class="p-3 lg:p-4 font-mono text-sm lg:text-lg font-bold">
+                    <span :class="log.time_out ? 'text-gray-400' : 'text-green-400 animate-pulse'">
+                      {{ log.time_out ? formatTime(log.time_out) : 'STILL INSIDE' }}
+                    </span>
+                  </td> -->
                 </tr>
               </tbody>
             </table>
@@ -171,6 +176,52 @@
       </div>
     </div>
   </Transition>
+
+  <!-- ── Global Alert Modal ── -->
+<Transition name="modal">
+  <div
+    v-if="alertModal.show"
+    class="fixed inset-0 z-50 flex items-center justify-center"
+    style="background: rgba(0, 0, 0, 0.55); backdrop-filter: blur(4px)"
+  >
+    <div class="already-done-modal">
+      <div class="already-done-icon-wrap">
+        <div class="already-done-icon">
+          <!-- Icon changes based on type -->
+          <svg v-if="alertModal.type === 'error'" width="28" height="28" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" stroke="#dc2626" stroke-width="1.8" />
+            <path d="M12 7v5.5" stroke="#dc2626" stroke-width="2" stroke-linecap="round" />
+            <circle cx="12" cy="16.5" r="1" fill="#dc2626" />
+          </svg>
+
+          <svg v-else-if="alertModal.type === 'success'" width="28" height="28" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" stroke="#16a34a" stroke-width="1.8" />
+            <path d="M8 12l3 3 5-6" stroke="#16a34a" stroke-width="2" fill="none" stroke-linecap="round"/>
+          </svg>
+
+          <svg v-else width="28" height="28" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" stroke="#b45309" stroke-width="1.8" />
+            <path d="M12 7v5.5" stroke="#b45309" stroke-width="2" stroke-linecap="round" />
+            <circle cx="12" cy="16.5" r="1" fill="#b45309" />
+          </svg>
+        </div>
+      </div>
+
+      <div class="already-done-body">
+        <div class="already-done-title">{{ alertModal.title }}</div>
+        <div class="already-done-subtitle">
+          {{ alertModal.message }}
+        </div>
+      </div>
+
+      <div class="already-done-footer">
+        <button @click="closeAlert" class="already-done-btn">
+          {{ alertModal.buttonText || 'OK' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</Transition>
 
   <!-- ── Event Selection Modal ── -->
   <Transition name="modal">
@@ -257,6 +308,11 @@
   </Transition>
 </template>
 
+
+
+
+
+
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
@@ -265,6 +321,50 @@ import { getAttendanceLogs, handleAttendance } from '@/services/attendanceServic
 import { getStudentById } from '@/services/studentService'
 import { supabase } from '@/supabase'
 
+/* =========================
+   GLOBAL ALERT MODAL
+========================= */
+const alertModal = ref({
+  show: false,
+  title: '',
+  message: '',
+  type: 'info',
+  buttonText: 'OK',
+})
+
+const alertTimeout = ref<any>(null)
+
+const showAlert = (
+  title: string,
+  message: string,
+  type: 'info' | 'success' | 'error' = 'info',
+  duration: number = 2500
+) => {
+  if (alertTimeout.value) clearTimeout(alertTimeout.value)
+
+  alertModal.value = {
+    show: true,
+    title,
+    message,
+    type,
+    buttonText: 'OK',
+  }
+
+  alertTimeout.value = setTimeout(() => {
+    closeAlert()
+  }, duration)
+}
+
+const closeAlert = () => {
+  alertModal.value.show = false
+  if (alertTimeout.value) {
+    clearTimeout(alertTimeout.value)
+    alertTimeout.value = null
+  }
+}
+/* =========================
+   ICONS
+========================= */
 const ICON_LIBRARY = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M5 8h6M5 5.5h6M5 10.5h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>`
 const ICON_EVENT = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`
 const ICON_VISITORS = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="6" cy="5" r="2" stroke="currentColor" stroke-width="1.3"/><path d="M2 13c0-2.21 1.79-4 4-4s4 1.79 4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="11.5" cy="5.5" r="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M13.5 13c0-1.66-1.12-3-2.5-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`
@@ -275,174 +375,57 @@ const attendanceTypes = [
   { value: 'visitors', label: 'Visitors', icon: ICON_VISITORS },
 ]
 
-interface Event {
-  id: string
-  title: string
-}
-interface SchoolInfo {
-  school_name: string
-  building_title: string
-  system_name: string
-  bg_path: string
-  logo_path: string
-  max_capacity: number
-  opening_time: string
-  closing_time: string
-  address: string
-}
-
+/* =========================
+   STATE
+========================= */
 const idInput = ref('')
 const attendanceLogs = ref<any[]>([])
 const isScannerRunning = ref(false)
 const isProcessing = ref(false)
+
 let html5QrCode: Html5Qrcode | null = null
+
 const currentTime = ref(new Date())
 let timer: any
 let schoolInfoTimer: any
 let attendancePageChannel: any = null
 
-const attendanceType = ref<string>('library')
-const showEventModal = ref<boolean>(false)
-const showAlreadyDoneModal = ref<boolean>(false)
-const events = ref<Event[]>([])
-const selectedEvent = ref<Event | null>(null)
-const eventSearch = ref<string>('')
+const attendanceType = ref('library')
+const showEventModal = ref(false)
+const showAlreadyDoneModal = ref(false)
 
-const schoolInfo = ref<SchoolInfo>({
+const events = ref<any[]>([])
+const selectedEvent = ref<any | null>(null)
+const eventSearch = ref('')
+
+const schoolInfo = ref<any>({
   school_name: '',
   building_title: '',
   system_name: '',
   bg_path: '',
   logo_path: '',
-  max_capacity: 0,
-  opening_time: '',
-  closing_time: '',
-  address: '',
 })
 
 const router = useRouter()
 
-const backgroundStyle = computed(() => ({
-  backgroundImage: `url('${schoolInfo.value.bg_path || '/hero-outside.png'}')`,
-}))
-
-const filteredEvents = computed(() => {
-  const q = eventSearch.value.toLowerCase().trim()
-  if (!q) return events.value
-  return events.value.filter((e) => e.title.toLowerCase().includes(q))
-})
-
-const fetchSchoolInfo = async () => {
-  const { data, error } = await supabase
-    .from('attendance_page')
-    .select('element_form')
-    .eq('element_name', 'school_info')
-    .single()
-  if (error) {
-    console.error('Error fetching school_info:', error)
-    return
-  }
-  if (!data?.element_form) return
-  try {
-    const parsed =
-      typeof data.element_form === 'string' ? JSON.parse(data.element_form) : data.element_form
-    schoolInfo.value = { ...schoolInfo.value, ...parsed }
-  } catch (err) {
-    console.error('Failed to parse element_form:', err)
-  }
-}
-
-const fetchLogs = async () => {
-  try {
-    const logs = await getAttendanceLogs()
-    const logsWithStudent = await Promise.all(
-      logs.map(async (log: any) => {
-        let studentData = null
-        try {
-          studentData = await getStudentById(log.student_id)
-        } catch (e) {}
-        return {
-          ...log,
-          students: studentData,
-          log_time: log.time_in
-            ? new Date(log.time_in).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-            : null,
-          time_in_formatted: log.time_in
-            ? new Date(log.time_in).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-            : null,
-          time_out_formatted: log.time_out
-            ? new Date(log.time_out).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-            : null,
-        }
-      }),
-    )
-    attendanceLogs.value = logsWithStudent.sort((a, b) => {
-      const aLatest = Math.max(
-        a.time_in ? new Date(a.time_in).getTime() : 0,
-        a.time_out ? new Date(a.time_out).getTime() : 0,
-      )
-      const bLatest = Math.max(
-        b.time_in ? new Date(b.time_in).getTime() : 0,
-        b.time_out ? new Date(b.time_out).getTime() : 0,
-      )
-      return bLatest - aLatest
-    })
-  } catch (err) {
-    console.error('Failed to fetch logs:', err)
-  }
-}
-
-let lastScanTime = 0
-
-const handleLogin = async (decodedText?: string) => {
-  const now = Date.now()
-  if (isProcessing.value) return
-  if (now - lastScanTime < 3000) return
-  lastScanTime = now
-
-  const rawData = decodedText || idInput.value
-  if (!rawData.trim()) return
-
-  isProcessing.value = true
-  try {
-    const studentId = rawData.trim()
-    const student = await getStudentById(studentId)
-    if (!student) {
-      console.warn('Student not found')
-      return
-    }
-
-    const result = await handleAttendance(studentId)
-
-    if (result?.type === 'already_done') {
-      showAlreadyDoneModal.value = true
-    }
-
-    await fetchLogs()
-    const audio = new Audio('/beep.mp3')
-    audio.play().catch(() => {})
-    idInput.value = ''
-  } catch (err) {
-    console.error('Attendance error:', err)
-  } finally {
-    setTimeout(() => {
-      isProcessing.value = false
-    }, 2000)
-  }
-}
-
+/* =========================
+   CAMERA / QR SCANNER
+========================= */
 const startScanner = async () => {
   if (!html5QrCode) return
+
   isScannerRunning.value = true
+
   html5QrCode
     .start(
       { facingMode: 'environment' },
       { fps: 15, qrbox: { width: 250, height: 250 } },
       (decodedText) => handleLogin(decodedText),
-      () => {},
+      () => {}
     )
     .catch((err) => {
       console.error('Camera start error:', err)
+      showAlert('Camera Error', 'Unable to access camera.', 'error')
       isScannerRunning.value = false
     })
 }
@@ -454,85 +437,249 @@ const stopScanner = async () => {
   }
 }
 
-const fetchEvents = async () => {
-  const { data, error } = await supabase.from('events').select('id, title').eq('is_active', true)
-  if (error) {
-    console.error('Error fetching events:', error)
-    return
+/* =========================
+   COMPUTED
+========================= */
+const backgroundStyle = computed(() => ({
+  backgroundImage: `url('${schoolInfo.value.bg_path || '/hero-outside.png'}')`,
+}))
+
+const filteredEvents = computed(() => {
+  const q = eventSearch.value.toLowerCase().trim()
+  if (!q) return events.value
+  return events.value.filter(e =>
+    e.title.toLowerCase().includes(q)
+  )
+})
+
+/* =========================
+   FETCH DATA
+========================= */
+const fetchSchoolInfo = async () => {
+  const { data } = await supabase
+    .from('attendance_page')
+    .select('element_form')
+    .eq('element_name', 'school_info')
+    .single()
+
+  if (!data?.element_form) return
+
+  try {
+    const parsed =
+      typeof data.element_form === 'string'
+        ? JSON.parse(data.element_form)
+        : data.element_form
+
+    schoolInfo.value = { ...schoolInfo.value, ...parsed }
+  } catch {}
+}
+
+const fetchLogs = async () => {
+  try {
+    const logs = await getAttendanceLogs()
+
+    const logsWithStudent = await Promise.all(
+      logs.map(async (log: any) => {
+        let studentData = null
+        try {
+          studentData = await getStudentById(log.student_id)
+        } catch {}
+
+        return { ...log, students: studentData }
+      })
+    )
+
+    attendanceLogs.value = logsWithStudent.sort((a, b) => {
+      const aTime = new Date(a.time_out || a.time_in).getTime()
+      const bTime = new Date(b.time_out || b.time_in).getTime()
+      return bTime - aTime
+    })
+  } catch (err) {
+    showAlert('Error', 'Failed to load attendance logs.', 'error')
   }
-  events.value = (data || []) as Event[]
+}
+
+/* =========================
+   ATTENDANCE
+========================= */
+let lastScanTime = 0
+
+const handleLogin = async (decodedText?: string) => {
+  const now = Date.now()
+
+  if (isProcessing.value) return
+  if (now - lastScanTime < 3000) return
+
+  lastScanTime = now
+
+  const rawData = decodedText || idInput.value
+  if (!rawData.trim()) return
+
+  isProcessing.value = true
+
+  try {
+    const studentId = rawData.trim()
+    
+    const result = await handleAttendance(studentId)
+
+    /* 1. NOT FOUND */
+    if (result?.type === 'not_found') {
+      showAlert(
+        'Student Not Found',
+        'No record found for this ID. Please check the ID number.',
+        'error'
+      )
+      idInput.value = '' 
+      return
+    }
+
+    /* 2. CLOSED */
+    if (result?.type === 'closed') {
+      showAlert(
+        'Library Closed',
+        'The Library is already closed (Cut-off: 7:00 PM).',
+        'error',
+        4000
+      )
+      return
+    }
+
+    /* 3. ALREADY DONE */
+    if (result?.type === 'already_done') {
+      showAlreadyDoneModal.value = true
+      return
+    }
+
+    /* 4. SUCCESS (time_in or time_out) */
+    // const isTimeIn = result?.type === 'time_in'
+    // showAlert(
+    //   'Success',
+    //   isTimeIn ? 'Timed In successfully!' : 'Timed Out successfully!',
+    //   'success',
+    //   2000
+    // )
+
+    // Refresh the table logs
+    await fetchLogs()
+
+    
+    const audio = new Audio('/beep.mp3')
+    audio.play().catch(() => {})
+    idInput.value = ''
+
+  } catch (err) {
+    console.error("Critical Error:", err)
+    showAlert('Error', 'Something went wrong. Please try again.', 'error')
+  } finally {
+    setTimeout(() => {
+      isProcessing.value = false
+    }, 2000)
+  }
+}
+
+/* =========================
+   EVENTS
+========================= */
+const fetchEvents = async () => {
+  const { data } = await supabase
+    .from('events')
+    .select('id, title')
+    .eq('is_active', true)
+
+  events.value = data || []
 }
 
 const setAttendanceType = async (value: string) => {
   attendanceType.value = value
-  await handleAttendanceChange()
-}
 
-const handleAttendanceChange = async () => {
-  if (attendanceType.value === 'event') {
+  if (value === 'event') {
     await fetchEvents()
-    eventSearch.value = ''
-    selectedEvent.value = null
     showEventModal.value = true
   }
-  if (attendanceType.value === 'visitors') goToVisitors()
-  if (attendanceType.value === 'library') goToLibrary()
+
+  if (value === 'visitors') router.push({ name: 'visitors' })
+  if (value === 'library') router.push({ name: 'access' })
 }
 
 const goToEvent = () => {
   if (!selectedEvent.value) return
-  router.push({ name: 'event', query: { id: selectedEvent.value.id } })
-  showEventModal.value = false
-}
-const goToVisitors = () => {
-  router.push({ name: 'visitors' })
-  showEventModal.value = false
-}
-const goToLibrary = () => {
-  router.push({ name: 'access' })
+
+  router.push({
+    name: 'event',
+    query: { id: selectedEvent.value.id },
+  })
+
   showEventModal.value = false
 }
 
+/* =========================
+   LIFECYCLE
+========================= */
 onMounted(async () => {
   await fetchSchoolInfo()
   await fetchLogs()
+
   html5QrCode = new Html5Qrcode('qr-reader')
   await startScanner()
-  timer = setInterval(() => (currentTime.value = new Date()), 1000)
-  schoolInfoTimer = setInterval(() => {
-    fetchSchoolInfo()
-  }, 5000)
+
+  timer = setInterval(() => {
+    currentTime.value = new Date()
+  }, 1000)
+
+  schoolInfoTimer = setInterval(fetchSchoolInfo, 5000)
+
   attendancePageChannel = supabase
     .channel('attendance_page_realtime')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'attendance_page' }, () => {
-      fetchSchoolInfo()
-    })
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'attendance_page' },
+      fetchSchoolInfo
+    )
     .subscribe()
 })
 
 onUnmounted(() => {
   clearInterval(timer)
   clearInterval(schoolInfoTimer)
+
   if (html5QrCode?.isScanning) html5QrCode.stop()
-  if (attendancePageChannel) supabase.removeChannel(attendancePageChannel)
+
+  if (attendancePageChannel) {
+    supabase.removeChannel(attendancePageChannel)
+  }
+
+  if (alertTimeout.value) {
+    clearTimeout(alertTimeout.value)
+  }
 })
 
+/* =========================
+   DATE/TIME
+========================= */
 const formattedDate = computed(() =>
   currentTime.value.toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-  }),
+  })
 )
+
 const formattedTime = computed(() =>
   currentTime.value.toLocaleTimeString('en-US', {
     hour: '2-digit',
     minute: '2-digit',
     hour12: true,
-  }),
+  })
 )
 </script>
+
+
+
+
+
+
+
 
 <style>
 #qr-reader img {
