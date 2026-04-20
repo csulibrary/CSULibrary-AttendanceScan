@@ -11,23 +11,23 @@
       <!-- Header -->
       <div class="flex items-center justify-center pt-4 pb-2 px-10 shrink-0">
         <div class="absolute left-10">
-          <img src="/csu-logo.png" alt="Logo" class="h-20 w-20 lg:h-28 lg:w-28 object-contain" />
+          <img src="/csu-logo.png" alt="Logo" class="h-30 w-30 lg:h-50 lg:w-50 object-contain" />
         </div>
         <div class="text-center">
           <h1
-            class="text-5xl lg:text-7xl uppercase leading-none font-black drop-shadow-md bg-[linear-gradient(90deg,#FFC300_0%,#ffffff_50%,#1b5e20_100%)] bg-clip-text text-transparent"
+            class="text-7xl lg:text-9xl uppercase leading-none font-black drop-shadow-md bg-[linear-gradient(90deg,#FFC300_0%,#ffffff_50%,#1b5e20_100%)] bg-clip-text text-transparent"
             style="font-family: Impact"
           >
             CARAGA STATE UNIVERSITY
           </h1>
           <h2
-            class="pb-1 text-2xl lg:text-3xl uppercase text-green-100 font-bold"
+            class="pb-1 text-5xl lg:text-6xl uppercase text-green-100 font-bold"
             style="font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif"
           >
             HERO LEARNING COMMONS
           </h2>
           <div
-            class="mt-2 inline-block bg-white/10 border border-white/20 px-6 py-1.5 rounded-md font-semibold text-sm lg:text-base opacity-100"
+            class="mt-2 inline-block bg-white/10 border border-white/20 px-6 py-1.5 rounded-md font-semibold text-2xl lg:text-3xl opacity-100"
           >
             ATTENDANCE AND CAPACITY CSU-LIBRARY ENTRY SYSTEM (ACCES)
           </div>
@@ -109,7 +109,7 @@
             <div class="relative w-full" style="padding-top: 56.25%">
               <video
                 class="absolute top-0 left-0 w-full h-full object-cover"
-                src="/videos/featured.mp4"
+                src="/videos/qr.mp4"
                 autoplay
                 muted
                 loop
@@ -128,7 +128,7 @@
         <!-- Left Column: Table only — fills full height, scrolls internally -->
         <div class="flex-1 min-h-0 overflow-hidden">
           <div
-            class="bg-white/10 rounded-2xl border border-white/20 shadow-2xl overflow-y-auto overflow-x-auto hidden-scroll h-full"
+            class="bg-white/10 rounded-2xl border border-white/20 shadow-2xl overflow-y-auto overflow-x-auto hidden-scroll max-h-[815px]"
           >
             <table class="w-full text-white border-collapse">
               <thead class="sticky top-0 z-20 bg-white/40 backdrop-blur-md">
