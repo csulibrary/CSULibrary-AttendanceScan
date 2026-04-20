@@ -15,13 +15,13 @@
         </div>
         <div class="text-center">
           <h1
-            class="text-7xl lg:text-9xl uppercase leading-none font-black drop-shadow-md bg-[linear-gradient(90deg,#FFC300_0%,#ffffff_50%,#1b5e20_100%)] bg-clip-text text-transparent"
+            class="text-5xl lg:text-7xl uppercase leading-none font-black drop-shadow-md bg-[linear-gradient(90deg,#FFC300_0%,#ffffff_50%,#1b5e20_100%)] bg-clip-text text-transparent"
             style="font-family: Impact"
           >
             CARAGA STATE UNIVERSITY
           </h1>
           <h2
-            class="pb-1 text-5xl lg:text-6xl uppercase text-green-100 font-bold"
+            class="pb-1 text-4xl lg:text-5xl uppercase text-green-100 font-bold"
             style="font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif"
           >
             HERO LEARNING COMMONS
