@@ -1,19 +1,19 @@
 <template>
-  <div class="relative h-screen w-screen text-white flex flex-col overflow-hidden bg-[#0b3d1f]">
+  <div
+    class="relative min-h-screen w-screen text-white flex flex-col overflow-x-hidden bg-[#0b3d1f]"
+  >
     <div
       class="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-20"
-      style="background-image: url('/hero-outside.jpg')"
+      style="background-image: url('/hero-outside.png')"
     ></div>
 
     <div class="relative z-10 flex flex-col h-full w-full">
       <!-- Header -->
-      <div class="flex items-center justify-center pt-8 pb-4 px-10 relative">
-        <!-- Left Logo -->
+      <!-- <div class="flex items-center justify-center pt-6 pb-3 px-10 shrink-0">
         <div class="absolute left-10">
           <img src="/csu-logo.png" alt="Logo" class="h-32 w-32 object-contain" />
         </div>
 
-        <!-- Center Title -->
         <div class="text-center">
           <h1
             class="text-6xl uppercase leading-none font-black drop-shadow-md bg-[linear-gradient(90deg,#FFC300_0%,#ffffff_50%,#1b5e20_100%)] bg-clip-text text-transparent"
@@ -36,76 +36,77 @@
           </div>
         </div>
 
-        <!-- Right: Pill Selector -->
-        <div class="absolute right-10 flex flex-col items-center gap-2">
-          <span class="text-[11px] font-semibold tracking-[0.15em] uppercase text-white/40">
-            Attendance Type
-          </span>
-          <div class="attendance-pill-group">
-            <button
-              v-for="type in attendanceTypes"
-              :key="type.value"
-              @click="setAttendanceType(type.value)"
-              :class="['attendance-pill-btn', attendanceType === type.value ? 'active' : '']"
-            >
-              <span class="pill-icon" v-html="type.icon"></span>
-              {{ type.label }}
-            </button>
-          </div>
-        </div>
-      </div>
+      </div> -->
 
-      <div class="flex-1 flex flex-row-reverse px-10 pb-10 gap-8 overflow-hidden">
-        <!-- Left Column: Camera + Manual Entry -->
-        <div class="w-[400px] flex flex-col gap-4">
-          <div class="bg-white/40 border border-white/10 p-6 rounded-2xl text-center">
-            <div class="text-xl opacity-70 uppercase font-bold">{{ formattedDate }}</div>
-            <div class="text-4xl font-mono font-bold text-green-400 mt-1">{{ formattedTime }}</div>
-          </div>
-
+      <div
+        class="flex flex-row-reverse px-6 lg:px-10 pb-6 lg:pb-10 gap-6 lg:gap-8 flex-1 overflow-hidden"
+      >
+        <!-- Right Column: Date/Time + Attendance Type + Camera -->
+        <div class="w-[340px] lg:w-[400px] flex flex-col gap-3 shrink-0">
+          <!-- Date & Time -->
           <div
-            class="flex-1 bg-white/10 border rounded-2xl overflow-hidden relative flex flex-col shadow-2xl"
+            class="bg-white/40 border border-white/10 px-6 py-3 rounded-2xl text-center shrink-0"
           >
-            <div class="p-3 bg-white/10 flex justify-between items-center px-4">
-              <span class="text-xs font-black tracking-widest uppercase">Live Camera Feed</span>
+            <div class="text-xs lg:text-base opacity-70 uppercase font-bold">
+              {{ formattedDate }}
+            </div>
+            <div class="text-2xl lg:text-3xl font-mono font-bold text-green-400 mt-1">
+              {{ formattedTime }}
+            </div>
+          </div>
+
+          <!-- Attendance Type -->
+          <div
+            class="bg-white/10 border border-white/20 rounded-2xl px-4 py-3 flex flex-col items-center gap-2 shrink-0"
+          >
+            <span class="text-[11px] font-semibold tracking-[0.15em] uppercase text-white/40"
+              >Attendance Type</span
+            >
+            <div class="attendance-pill-group w-full">
               <button
-                v-if="isScannerRunning"
-                @click="stopScanner"
-                class="text-[10px] bg-red-600 hover:bg-red-700 px-3 py-1 rounded font-bold transition-all border border-red-400 shadow-lg"
+                v-for="type in attendanceTypes"
+                :key="type.value"
+                @click="setAttendanceType(type.value)"
+                :class="['attendance-pill-btn', attendanceType === type.value ? 'active' : '']"
               >
-                STOP CAMERA
+                <span class="pill-icon" v-html="type.icon"></span>
+                {{ type.label }}
               </button>
             </div>
+          </div>
 
-            <div id="qr-reader" class="flex-1 w-full bg-black/20"></div>
-
-            <div class="p-4 bg-black/40 flex flex-col gap-3">
+          <!-- Camera + Manual Entry -->
+          <div
+            class="bg-white/10 border rounded-2xl overflow-hidden flex flex-col shadow-2xl shrink-0"
+          >
+            <div class="p-3 bg-white/10 flex justify-between items-center px-4 shrink-0">
+              <span class="text-xs font-black tracking-widest uppercase">Live Camera Feed</span>
+            </div>
+            <div
+              id="qr-reader"
+              class="w-full bg-black/20 shrink-0"
+              style="height: clamp(160px, 22vh, 260px)"
+            ></div>
+            <div class="p-4 bg-black/40 flex flex-col gap-3 shrink-0">
               <input
                 v-model="idInput"
                 type="text"
-                placeholder="Manual Entry..."
-                @keyup.enter="(e: KeyboardEvent) => handleLogin()"
-                class="w-full p-2 rounded border border-white/80 text-white"
+                placeholder="Ex. 221-293842"
+                @keyup.enter="() => handleLogin()"
+                class="w-full p-2 rounded border border-white/80 text-white bg-transparent text-sm lg:text-base"
               />
               <button
-                v-if="!isScannerRunning"
-                @click="startScanner"
-                class="w-full py-3 rounded-lg font-bold transition-all bg-green-700 hover:bg-green-600 border border-green-500 shadow-md"
+                @click="handleLogin()"
+                class="w-full py-3 rounded-lg font-bold transition-all bg-green-700 hover:bg-green-600 border border-green-500 shadow-md text-sm lg:text-base"
               >
-                START CAMERA
+                ENTER
               </button>
-              <div
-                v-else
-                class="w-full py-3 text-center text-green-400 font-bold animate-pulse text-sm tracking-widest"
-              >
-                SCANNER IS ACTIVE...
-              </div>
             </div>
           </div>
         </div>
 
-        <!-- Right Column: Attendance Table -->
-        <div class="flex-1 flex flex-col min-h-0">
+        <!-- Left Column: Attendance Table -->
+        <div class="flex-1 flex flex-col min-h-0 overflow-hidden">
           <div
             class="flex-1 bg-white/10 rounded-2xl overflow-y-auto overflow-x-hidden hidden-scroll border border-white/20 shadow-2xl"
           >
@@ -137,11 +138,6 @@
                   >
                     Time-In
                   </th>
-                  <th
-                    class="p-4 uppercase text-sm font-black tracking-widest border-b border-white/10"
-                  >
-                    Time-Out
-                  </th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-white/5">
@@ -160,16 +156,6 @@
                     {{
                       log.time_in
                         ? new Date(log.time_in).toLocaleTimeString([], {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })
-                        : '—'
-                    }}
-                  </td>
-                  <td class="p-4 font-mono text-lg opacity-80 font-bold">
-                    {{
-                      log.time_out
-                        ? new Date(log.time_out).toLocaleTimeString([], {
                             hour: '2-digit',
                             minute: '2-digit',
                           })
@@ -326,9 +312,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
+import { watch } from 'vue'
 import { Html5Qrcode } from 'html5-qrcode'
-import { getAttendanceLogs, createAttendanceLog } from '@/services/attendanceService'
+import { getAttendanceLogs, createAttendanceLogEvent } from '@/services/attendanceService'
 import { getStudentById } from '@/services/studentService'
 import { supabase } from '@/supabase'
 
@@ -374,13 +361,29 @@ let html5QrCode: Html5Qrcode | null = null
 const currentTime = ref(new Date())
 let timer: any
 
-const attendanceType = ref<string>('library')
+const attendanceType = ref<string>('event')
 const showEventModal = ref<boolean>(false)
 const events = ref<Event[]>([])
 const selectedEvent = ref<Event | null>(null)
 const eventSearch = ref<string>('')
 
 const router = useRouter()
+const route = useRoute()
+
+watch(
+  () => route.query.id,
+  async (newId) => {
+    if (newId) {
+      selectedEvent.value = {
+        id: newId as string,
+        title: '',
+      }
+
+      attendanceLogs.value = [] // 🔥 clear old data immediately
+      await fetchLogs() // 🔥 fetch new event logs
+    }
+  },
+)
 
 // ─── FILTERED EVENTS ──────────────────────────────────────────────────────────
 const filteredEvents = computed(() => {
@@ -392,32 +395,35 @@ const filteredEvents = computed(() => {
 // ─── FETCH ATTENDANCE WITH STUDENT INFO ───────────────────────────────────────
 const fetchLogs = async () => {
   try {
-    const logs = await getAttendanceLogs()
-    const logsWithStudent = await Promise.all(
-      logs.map(async (log: any) => {
-        let studentData = null
-        try {
-          studentData = await getStudentById(log.student_id)
-        } catch (e) {
-          console.warn('Student not found for ID:', log.student_id)
-        }
-        return {
-          ...log,
-          student: studentData,
-          log_time: new Date(log.time_in).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-          }),
-          time_in_formatted: log.time_in
-            ? new Date(log.time_in).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-            : null,
-          time_out_formatted: log.time_out
-            ? new Date(log.time_out).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-            : null,
-        }
-      }),
-    )
-    attendanceLogs.value = logsWithStudent
+    let query = supabase
+      .from('attendance_logs')
+      .select(
+        `
+        *,
+        students (
+          first_name,
+          last_name,
+          program,
+          year_level
+        )
+      `,
+      )
+      .order('time_in', { ascending: false })
+
+    // 🔥 FILTER HERE
+    if (attendanceType.value === 'event' && selectedEvent.value) {
+      query = query.eq('attendance_type', 'event').eq('event_id', selectedEvent.value.id)
+    }
+
+    if (attendanceType.value === 'library') {
+      query = query.eq('attendance_type', 'library')
+    }
+
+    const { data, error } = await query
+
+    if (error) throw error
+
+    attendanceLogs.value = data || []
   } catch (err) {
     console.error('Failed to fetch attendance logs:', err)
   }
@@ -441,7 +447,16 @@ const handleLogin = async (decodedText?: string) => {
       return
     }
 
-    await createAttendanceLog(studentId)
+    if (attendanceType.value === 'event' && !selectedEvent.value) {
+      console.warn('No event selected')
+      return
+    }
+
+    await createAttendanceLogEvent({
+      student_id: studentId,
+      attendance_type: attendanceType.value === 'event' ? 'event' : 'library',
+      event_id: attendanceType.value === 'event' ? selectedEvent.value?.id : null,
+    })
     await fetchLogs()
 
     const audio = new Audio('/beep.mp3')
@@ -537,6 +552,13 @@ const goToLibrary = () => {
 
 // ─── LIFECYCLE ─────────────────────────────────────────────────────────────────
 onMounted(() => {
+  const eventId = route.query.id as string
+
+  if (eventId) {
+    attendanceType.value = 'event' // force correct type
+    selectedEvent.value = { id: eventId, title: '' } // minimal object
+  }
+
   fetchLogs()
   html5QrCode = new Html5Qrcode('qr-reader')
   timer = setInterval(() => (currentTime.value = new Date()), 1000)
@@ -570,6 +592,7 @@ const formattedTime = computed(() =>
 #qr-reader img {
   display: none;
 }
+
 #qr-reader video {
   object-fit: cover !important;
   width: 100% !important;
@@ -581,6 +604,7 @@ const formattedTime = computed(() =>
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
 .hidden-scroll::-webkit-scrollbar {
   display: none;
 }
@@ -594,6 +618,7 @@ const formattedTime = computed(() =>
   padding: 4px;
   gap: 4px;
 }
+
 .attendance-pill-btn {
   display: flex;
   align-items: center;
@@ -614,18 +639,22 @@ const formattedTime = computed(() =>
   white-space: nowrap;
   outline: none;
 }
+
 .attendance-pill-btn:hover {
   background: rgba(255, 255, 255, 0.1);
   color: rgba(255, 255, 255, 0.9);
 }
+
 .attendance-pill-btn:active {
   transform: scale(0.97);
 }
+
 .attendance-pill-btn.active {
   background: #16a34a;
   color: #ffffff;
   box-shadow: 0 2px 12px rgba(22, 163, 74, 0.4);
 }
+
 .pill-icon {
   display: flex;
   align-items: center;
@@ -957,6 +986,7 @@ const formattedTime = computed(() =>
     opacity: 0;
     transform: scale(0.94) translateY(8px);
   }
+
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -967,6 +997,7 @@ const formattedTime = computed(() =>
 .modal-leave-active {
   transition: opacity 0.18s ease;
 }
+
 .modal-enter-from,
 .modal-leave-to {
   opacity: 0;
