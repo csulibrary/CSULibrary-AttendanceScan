@@ -83,7 +83,7 @@
               ></video>
             </div>
             <div class="px-4 py-2 bg-black/30">
-              <div class="text-sm font-bold text-white">CSU Library Orientation 2024</div>
+              <div class="text-sm font-bold text-white">CSU Library Orientation 2026</div>
               <div class="text-[11px] text-white/50 mt-0.5">Caraga State University · Hero Learning Commons</div>
             </div>
           </div>
