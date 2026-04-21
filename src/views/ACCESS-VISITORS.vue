@@ -373,28 +373,28 @@ const filteredEvents = computed(() => {
 })
 
 // ─── FETCH SCHOOL INFO ────────────────────────────────────────────────────────
-const fetchSchoolInfo = async () => {
-  const { data, error } = await supabase
-    .from('attendance_page')
-    .select('element_form')
-    .eq('element_name', 'school_info')
-    .single()
+// const fetchSchoolInfo = async () => {
+//   const { data, error } = await supabase
+//     .from('attendance_page')
+//     .select('element_form')
+//     .eq('element_name', 'school_info')
+//     .single()
 
-  if (error) {
-    console.error('Error fetching attendance page school_info:', error)
-    return
-  }
+//   if (error) {
+//     console.error('Error fetching attendance page school_info:', error)
+//     return
+//   }
 
-  if (!data?.element_form) return
+//   if (!data?.element_form) return
 
-  try {
-    const parsed =
-      typeof data.element_form === 'string' ? JSON.parse(data.element_form) : data.element_form
-    schoolInfo.value = { ...schoolInfo.value, ...parsed }
-  } catch (err) {
-    console.error('Failed to parse attendance_page.element_form:', err)
-  }
-}
+//   try {
+//     const parsed =
+//       typeof data.element_form === 'string' ? JSON.parse(data.element_form) : data.element_form
+//     schoolInfo.value = { ...schoolInfo.value, ...parsed }
+//   } catch (err) {
+//     console.error('Failed to parse attendance_page.element_form:', err)
+//   }
+// }
 
 // ─── FETCH VISITOR LOGS ───────────────────────────────────────────────────────
 const fetchVisitorLogs = async () => {
@@ -480,23 +480,23 @@ const goToLibrary = () => {
 }
 
 // ─── LIFECYCLE ────────────────────────────────────────────────────────────────
-onMounted(async () => {
-  await fetchSchoolInfo()
-  await fetchVisitorLogs()
+// onMounted(async () => {
+//   await fetchSchoolInfo()
+//   await fetchVisitorLogs()
 
-  timer = setInterval(() => (currentTime.value = new Date()), 1000)
+//   timer = setInterval(() => (currentTime.value = new Date()), 1000)
 
-  //   schoolInfoTimer = setInterval(() => {
-  //     fetchSchoolInfo()
-  //   }, 5000)
+//   //   schoolInfoTimer = setInterval(() => {
+//   //     fetchSchoolInfo()
+//   //   }, 5000)
 
-  attendancePageChannel = supabase
-    .channel('attendance_page_realtime')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'attendance_page' }, () => {
-      fetchSchoolInfo()
-    })
-    .subscribe()
-})
+//   attendancePageChannel = supabase
+//     .channel('attendance_page_realtime')
+//     .on('postgres_changes', { event: '*', schema: 'public', table: 'attendance_page' }, () => {
+//       fetchSchoolInfo()
+//     })
+//     .subscribe()
+// })
 
 onUnmounted(() => {
   clearInterval(timer)
