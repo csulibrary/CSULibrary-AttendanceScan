@@ -616,10 +616,12 @@ const goToEvent = () => {
   showEventModal.value = false
 }
 
-let lastScanTime = 0
+let lastScannedId = ''
+let lastScannedAt = 0
 let clockInterval: number | undefined
 
 const SCANNER_INTERVAL_MS = 40
+const DUPLICATE_SCAN_BLOCK_MS = 20000
 let scannerBuffer = ''
 let scannerSession = false
 let pendingScannerStart = false
@@ -770,14 +772,7 @@ const handleScannerKeydown = (e: KeyboardEvent) => {
 }
 
 const handleLogin = async (decodedText?: string) => {
-  const now = Date.now()
-
   if (isProcessing.value) {
-    clearAndRefocusScanner()
-    return
-  }
-
-  if (now - lastScanTime < 800) {
     clearAndRefocusScanner()
     return
   }
@@ -792,7 +787,15 @@ const handleLogin = async (decodedText?: string) => {
     return
   }
 
-  lastScanTime = now
+  const now = Date.now()
+
+  if (rawData === lastScannedId && now - lastScannedAt < DUPLICATE_SCAN_BLOCK_MS) {
+    clearAndRefocusScanner()
+    return
+  }
+
+  lastScannedId = rawData
+  lastScannedAt = now
 
   idInput.value = ''
   resetScannerState()
