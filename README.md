@@ -1,6 +1,6 @@
 CSU Library - Attendance
 
 Install:
-vue
+npm install
 npm install html5-qrcode
 npm install @supabase/supabase-js
