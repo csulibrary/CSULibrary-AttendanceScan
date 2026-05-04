@@ -7,7 +7,7 @@
       style="background-image: url('/hero-outside.png')"
     ></div>
 
-          <div class="shrink-0 px-3 pt-3 pb-3 sm:px-4 sm:pt-4 sm:pb-4 lg:px-8 lg:pt-8 lg:pb-8 xl:px-10 xl:pt-10 xl:pb-10">
+      <div class="shrink-0 px-3 pt-3 pb-3 sm:px-4 sm:pt-4 sm:pb-4 lg:px-8 lg:pt-8 lg:pb-8 xl:px-10 xl:pt-10 xl:pb-10">
         <div class="relative flex items-center justify-center">
           <div class="absolute left-0 top-1/2 -translate-y-1/2">
             <img
@@ -485,7 +485,11 @@ const subscribeToLogs = (eventId: string | null) => {
           : {}),
       },
       async (payload) => {
-        // Fetch the full row with student join (one small targeted query)
+        // Skip if already prepended optimistically by this device
+        const alreadyExists = attendanceLogs.value.some((l) => l.id === payload.new.id)
+        if (alreadyExists) return
+
+        // Fetch the full row with student join (covers inserts from other devices)
         const { data } = await supabase
           .from('attendance_logs')
           .select('id, student_id, time_in, students (first_name, last_name, program, year_level)')
@@ -549,11 +553,18 @@ const handleLogin = async (decodedText?: string) => {
       time_in:         new Date().toISOString(),
     }
 
-    const { error } = await supabase.from('attendance_logs').insert(payload)
+    const { data: inserted, error } = await supabase
+      .from('attendance_logs')
+      .insert(payload)
+      .select('id, student_id, time_in, students (first_name, last_name, program, year_level)')
+      .single()
+
     if (error) throw error
 
-    // The realtime subscription will prepend the new row automatically —
-    // no need to call fetchLogs() again here.
+    // ── Optimistic prepend: show the row instantly without waiting for realtime ──
+    if (inserted) {
+      attendanceLogs.value = [inserted, ...attendanceLogs.value]
+    }
 
     new Audio('/beep.mp3').play().catch(() => {})
     idInput.value = ''
