@@ -1,0 +1,9 @@
+ACCESS (Library Users - Time In)
+
+ACCESS-OUT (Library Users - Time Out)
+
+ACCESS-EVENT (Library Events)
+
+ACCESS-VISITORS (Library Visitors)
+
+Videos/Pictures Display

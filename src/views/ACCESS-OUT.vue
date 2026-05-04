@@ -533,7 +533,6 @@ const beepAudio = new Audio('/beep.mp3')
 const idInput = ref('')
 const scannerInput = ref<HTMLInputElement | null>(null)
 const attendanceLogs = ref<any[]>([])
-const activeInsideCount = ref(0)
 const timedOutCount = ref(0)
 const isProcessing = ref(false)
 const currentTime = ref(new Date())
@@ -573,12 +572,13 @@ const ATTENDANCE_PAGE_ELEMENT_NAME = 'school_info'
 const ATTENDANCE_STORAGE_BUCKET = 'attendance_video'
 
 let attendancePageRealtimeChannel: any = null
+let attendanceLogsRealtimeChannel: any = null
+let clockInterval: number | undefined
+let autoSubmitTimer: ReturnType<typeof setTimeout> | null = null
 
 const parseAttendancePageForm = (value: any) => {
   if (!value || value === 'EMPTY') return {}
-
   if (typeof value === 'object') return value
-
   if (typeof value === 'string') {
     try {
       return JSON.parse(value)
@@ -586,7 +586,6 @@ const parseAttendancePageForm = (value: any) => {
       return {}
     }
   }
-
   return {}
 }
 
@@ -620,17 +619,12 @@ const fetchAttendancePageSettings = async () => {
 
     if (!data?.element_form) {
       console.warn('No attendance_page element_form found.')
-      attendancePageSettings.value = {
-        bg_path: '',
-        video_path: '',
-      }
+      attendancePageSettings.value = { bg_path: '', video_path: '' }
       return
     }
 
     const parsed = parseAttendancePageForm(data.element_form)
 
-    // Prefer storage paths so the Attendance UI always creates a fresh playable URL.
-    // If storage path is not available, use the direct saved URL as fallback.
     const backgroundUrl = parsed.bg_storage_path
       ? await getStorageFileUrl(parsed.bg_storage_path)
       : parsed.bg_path || ''
@@ -654,14 +648,10 @@ watch(
   () => orientationVideoSrc.value,
   async (newSrc) => {
     console.log('Orientation video source changed:', newSrc)
-
     await nextTick()
-
     if (!orientationVideoRef.value) return
-
     orientationVideoRef.value.pause()
     orientationVideoRef.value.load()
-
     orientationVideoRef.value.play().catch((error) => {
       console.warn('Video autoplay was blocked or failed:', error)
     })
@@ -678,10 +668,8 @@ const getTodayRange = () => {
   const now = new Date()
   const startOfDay = new Date(now)
   startOfDay.setHours(0, 0, 0, 0)
-
   const endOfDay = new Date(now)
   endOfDay.setHours(23, 59, 59, 999)
-
   return {
     start: startOfDay.toISOString(),
     end: endOfDay.toISOString(),
@@ -713,61 +701,15 @@ const fetchLogs = async () => {
     if (error) throw error
 
     attendanceLogs.value = data || []
+    timedOutCount.value = attendanceLogs.value.length
   } catch (err) {
     console.error('Failed to load timeout logs:', err)
     showAlert('Error', 'Failed to load attendance logs.', 'error')
   }
 }
 
-const fetchActiveInsideCount = async () => {
-  try {
-    const { start, end } = getTodayRange()
-
-    const { count, error } = await supabase
-      .from('attendance_logs')
-      .select('*', { count: 'exact', head: true })
-      .eq('attendance_type', 'library')
-      .gte('time_in', start)
-      .lte('time_in', end)
-      .not('time_in', 'is', null)
-      .is('time_out', null)
-
-    if (error) {
-      console.error('Failed to fetch active inside count:', error)
-      return
-    }
-
-    activeInsideCount.value = count || 0
-  } catch (err) {
-    console.error('Failed to fetch active inside count:', err)
-  }
-}
-
-const fetchTimedOutCount = async () => {
-  try {
-    const { start, end } = getTodayRange()
-
-    const { count, error } = await supabase
-      .from('attendance_logs')
-      .select('*', { count: 'exact', head: true })
-      .eq('attendance_type', 'library')
-      .gte('time_out', start)
-      .lte('time_out', end)
-      .not('time_out', 'is', null)
-
-    if (error) {
-      console.error('Failed to fetch timed out count:', error)
-      return
-    }
-
-    timedOutCount.value = count || 0
-  } catch (err) {
-    console.error('Failed to fetch timed out count:', err)
-  }
-}
-
 const refreshAttendanceData = async () => {
-  await Promise.all([fetchLogs(), fetchActiveInsideCount(), fetchTimedOutCount()])
+  await fetchLogs()
 }
 
 const fetchEvents = async () => {
@@ -793,22 +735,18 @@ const goToEvent = () => {
 
 let lastScannedId = ''
 let lastScannedAt = 0
-let clockInterval: number | undefined
-let refreshInterval: number | undefined
-let autoSubmitTimer: ReturnType<typeof setTimeout> | null = null
 
 const DUPLICATE_SCAN_BLOCK_MS = 20000
 const PASTE_AUTO_SUBMIT_DELAY_MS = 80
 const MIN_SCANNED_LENGTH = 4
 
-const normalizeScannedValue = (value: string) => {
+// ← explicit return type: string — fixes TS2322
+const normalizeScannedValue = (value: string): string => {
   const cleaned = value.replace(/\r/g, '').replace(/\n/g, '').trim()
   const matches = cleaned.match(/\d{3}-\d{5}/g)
-
   if (matches && matches.length > 0) {
-    return matches[matches.length - 1]
+    return matches[matches.length - 1] ?? cleaned
   }
-
   return cleaned
 }
 
@@ -857,7 +795,6 @@ const handleInputChange = () => {
     clearScannerField()
     return
   }
-
   const cleaned = normalizeScannedValue(idInput.value)
   if (cleaned !== idInput.value) {
     idInput.value = cleaned
@@ -866,10 +803,8 @@ const handleInputChange = () => {
 
 const handlePaste = (e: ClipboardEvent) => {
   if (isProcessing.value) return
-
   const pasted = normalizeScannedValue(e.clipboardData?.getData('text') || '')
   if (!pasted || pasted.length < MIN_SCANNED_LENGTH) return
-
   clearAutoSubmitTimer()
   autoSubmitTimer = setTimeout(() => {
     handleLogin(pasted)
@@ -881,7 +816,6 @@ const handleScannerKeydown = (e: KeyboardEvent) => {
     e.preventDefault()
     return
   }
-
   if (e.key === 'Tab') {
     e.preventDefault()
   }
@@ -926,7 +860,6 @@ const handleLogin = async (decodedText?: string) => {
       await reopenAlreadyDoneModal()
     } else {
       beepAudio.play().catch(() => {})
-      await refreshAttendanceData()
     }
   } catch (err) {
     console.error(err)
@@ -969,7 +902,7 @@ watch(showAlreadyDoneModal, (value) => {
 })
 
 onMounted(async () => {
-  await Promise.all([refreshAttendanceData(), fetchAttendancePageSettings()])
+  await Promise.all([fetchLogs(), fetchAttendancePageSettings()])
 
   focusScannerInput()
 
@@ -980,10 +913,6 @@ onMounted(async () => {
   clockInterval = window.setInterval(() => {
     currentTime.value = new Date()
   }, 1000)
-
-  refreshInterval = window.setInterval(() => {
-    refreshAttendanceData()
-  }, 30000)
 
   attendancePageRealtimeChannel = supabase
     .channel('attendance-page-settings-realtime-access-out')
@@ -1000,6 +929,21 @@ onMounted(async () => {
       },
     )
     .subscribe()
+
+  attendanceLogsRealtimeChannel = supabase
+    .channel('attendance-logs-realtime-access-out')
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'attendance_logs',
+      },
+      async () => {
+        await fetchLogs()
+      },
+    )
+    .subscribe()
 })
 
 onBeforeUnmount(() => {
@@ -1010,11 +954,15 @@ onBeforeUnmount(() => {
   if (alertTimeout.value) clearTimeout(alertTimeout.value)
   if (alreadyDoneTimeout.value) clearTimeout(alreadyDoneTimeout.value)
   if (clockInterval) clearInterval(clockInterval)
-  if (refreshInterval) clearInterval(refreshInterval)
 
   if (attendancePageRealtimeChannel) {
     supabase.removeChannel(attendancePageRealtimeChannel)
     attendancePageRealtimeChannel = null
+  }
+
+  if (attendanceLogsRealtimeChannel) {
+    supabase.removeChannel(attendanceLogsRealtimeChannel)
+    attendanceLogsRealtimeChannel = null
   }
 
   clearAutoSubmitTimer()
