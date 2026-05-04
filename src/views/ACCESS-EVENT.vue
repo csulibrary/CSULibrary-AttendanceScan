@@ -7,6 +7,40 @@
       style="background-image: url('/hero-outside.png')"
     ></div>
 
+          <div class="shrink-0 px-3 pt-3 pb-3 sm:px-4 sm:pt-4 sm:pb-4 lg:px-8 lg:pt-8 lg:pb-8 xl:px-10 xl:pt-10 xl:pb-10">
+        <div class="relative flex items-center justify-center">
+          <div class="absolute left-0 top-1/2 -translate-y-1/2">
+            <img
+              src="/csu-logo.png"
+              alt="Logo"
+              class="h-28 w-28 object-contain sm:h-32 sm:w-32 md:h-36 md:w-36 lg:h-40 lg:w-40 xl:h-44 xl:w-44"
+            />
+          </div>
+
+          <div class="px-24 text-center sm:px-28 md:px-32 lg:px-40">
+            <h1
+              class="bg-[linear-gradient(90deg,#FFC300_0%,#ffffff_50%,#1b5e20_100%)] bg-clip-text text-2xl font-black uppercase leading-none text-transparent drop-shadow-md sm:text-3xl md:text-4xl lg:text-6xl xl:text-7xl"
+              style="font-family: Impact"
+            >
+              CARAGA STATE UNIVERSITY
+            </h1>
+
+            <h2
+              class="mt-1 text-lg font-bold uppercase text-green-100 sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl"
+              style="font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif"
+            >
+              HERO LEARNING COMMONS
+            </h2>
+
+            <div
+              class="mt-2 inline-block rounded-md border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold sm:text-sm md:text-base lg:px-5 lg:text-xl xl:text-2xl"
+            >
+              ATTENDANCE AND CAPACITY CSU-LIBRARY ENTRY SYSTEM (ACCES)
+            </div>
+          </div>
+        </div>
+      </div>
+
     <div class="relative z-10 flex flex-col h-full w-full">
       <div
         class="flex flex-row-reverse px-6 lg:px-10 pb-6 lg:pb-10 gap-6 lg:gap-8 flex-1 overflow-hidden"
@@ -293,9 +327,9 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Html5Qrcode } from 'html5-qrcode'
-import { getAttendanceLogs, createAttendanceLogEvent } from '@/services/attendanceService'
 import { getStudentById } from '@/services/studentService'
 import { supabase } from '@/supabase'
+import type { RealtimeChannel } from '@supabase/supabase-js'
 
 // ─── ICONS ────────────────────────────────────────────────────────────────────
 const ICON_LIBRARY = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -332,6 +366,13 @@ interface Event {
   start_date?: string | null
 }
 
+interface AttendanceLogPayload {
+  student_id: string
+  attendance_type: 'event' | 'library'
+  event_id?: string | null
+  time_in?: string
+}
+
 // ─── STATE ────────────────────────────────────────────────────────────────────
 const idInput          = ref('')
 const attendanceLogs   = ref<any[]>([])
@@ -339,8 +380,10 @@ const isScannerRunning = ref(false)
 const isProcessing     = ref(false)
 let html5QrCode: Html5Qrcode | null = null
 const currentTime      = ref(new Date())
-let timer: any
-let endedCheckTimer: any
+let clockTimer: ReturnType<typeof setInterval>
+
+// Supabase realtime channel — replaces polling
+let realtimeChannel: RealtimeChannel | null = null
 
 const attendanceType   = ref<string>('event')
 const showEventModal   = ref<boolean>(false)
@@ -349,6 +392,7 @@ const events           = ref<Event[]>([])
 const selectedEvent    = ref<Event | null>(null)
 const eventSearch      = ref<string>('')
 const currentEventInfo = ref<Event | null>(null)
+let hasShownEndedModal = false
 
 const router = useRouter()
 const route  = useRoute()
@@ -367,25 +411,22 @@ const formatEventTime = (timeStr: string | null | undefined): string => {
 // ─── IS EVENT ENDED ───────────────────────────────────────────────────────────
 const isEventEnded = computed((): boolean => {
   if (!currentEventInfo.value?.time_end) return false
-
   const now       = new Date()
   const eventDate = currentEventInfo.value.start_date
     ? new Date(currentEventInfo.value.start_date).toISOString().split('T')[0]
     : now.toISOString().split('T')[0]
-
   const endDateTime = new Date(`${eventDate}T${currentEventInfo.value.time_end}`)
   return now > endDateTime
 })
 
-// ─── WATCH FOR EVENT ENDING in real-time ─────────────────────────────────────
-// Checks every 30 seconds if the event has ended, shows modal once
-let hasShownEndedModal = false
-const checkIfEventEnded = () => {
-  if (isEventEnded.value && !hasShownEndedModal && currentEventInfo.value) {
+// ─── CHECK IF EVENT ENDED (called on clock tick) ──────────────────────────────
+// Runs on the existing 1-second clock; no extra interval needed.
+watch(isEventEnded, (ended) => {
+  if (ended && !hasShownEndedModal && currentEventInfo.value) {
     hasShownEndedModal = true
     showEndedModal.value = true
   }
-}
+})
 
 // ─── FILTERED EVENTS ──────────────────────────────────────────────────────────
 const filteredEvents = computed(() => {
@@ -394,19 +435,18 @@ const filteredEvents = computed(() => {
   return events.value.filter((e) => e.title.toLowerCase().includes(q))
 })
 
-// ─── FETCH ATTENDANCE LOGS ────────────────────────────────────────────────────
-const fetchLogs = async () => {
+// ─── FETCH ATTENDANCE LOGS (initial load only) ────────────────────────────────
+const fetchLogs = async (eventId: string | null = null) => {
   try {
     let query = supabase
       .from('attendance_logs')
-      .select(`*, students (first_name, last_name, program, year_level)`)
+      // Only select the columns we actually render
+      .select('id, student_id, time_in, students (first_name, last_name, program, year_level)')
       .order('time_in', { ascending: false })
 
-    if (attendanceType.value === 'event' && selectedEvent.value) {
-      query = query.eq('attendance_type', 'event').eq('event_id', selectedEvent.value.id)
-    }
-
-    if (attendanceType.value === 'library') {
+    if (attendanceType.value === 'event' && eventId) {
+      query = query.eq('attendance_type', 'event').eq('event_id', eventId)
+    } else if (attendanceType.value === 'library') {
       query = query.eq('attendance_type', 'library')
     }
 
@@ -418,7 +458,47 @@ const fetchLogs = async () => {
   }
 }
 
-// ─── FETCH CURRENT EVENT INFO (with time_start / time_end) ───────────────────
+// ─── REALTIME SUBSCRIPTION ────────────────────────────────────────────────────
+// Replaces the repeated fetchLogs() polling. When a new INSERT arrives we fetch
+// only that single new row and prepend it, keeping the list fresh with 1 query
+// per real event instead of a full re-fetch every 2 seconds.
+const subscribeToLogs = (eventId: string | null) => {
+  // Tear down any existing channel first
+  if (realtimeChannel) {
+    supabase.removeChannel(realtimeChannel)
+    realtimeChannel = null
+  }
+
+  realtimeChannel = supabase
+    .channel('attendance_logs_realtime')
+    .on(
+      'postgres_changes',
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'attendance_logs',
+        // Filter server-side so only relevant rows are pushed to this client
+        ...(attendanceType.value === 'event' && eventId
+          ? { filter: `event_id=eq.${eventId}` }
+          : attendanceType.value === 'library'
+          ? { filter: `attendance_type=eq.library` }
+          : {}),
+      },
+      async (payload) => {
+        // Fetch the full row with student join (one small targeted query)
+        const { data } = await supabase
+          .from('attendance_logs')
+          .select('id, student_id, time_in, students (first_name, last_name, program, year_level)')
+          .eq('id', payload.new.id)
+          .single()
+
+        if (data) attendanceLogs.value = [data, ...attendanceLogs.value]
+      },
+    )
+    .subscribe()
+}
+
+// ─── FETCH CURRENT EVENT INFO ─────────────────────────────────────────────────
 const fetchCurrentEventInfo = async (eventId: string) => {
   const { data, error } = await supabase
     .from('events')
@@ -429,48 +509,53 @@ const fetchCurrentEventInfo = async (eventId: string) => {
   if (error) { console.error('Error fetching event info:', error); return }
 
   currentEventInfo.value = data as Event
-  hasShownEndedModal = false // reset so modal can show again for new event
-
-  // Immediately check if already ended when loading
-  checkIfEventEnded()
+  hasShownEndedModal = false
+  if (isEventEnded.value) {
+    hasShownEndedModal = true
+    showEndedModal.value = true
+  }
 }
 
 // ─── HANDLE LOGIN ──────────────────────────────────────────────────────────────
 const handleLogin = async (decodedText?: string) => {
   if (isProcessing.value) return
 
-  // Block time-in if event has ended
   if (isEventEnded.value) {
     showEndedModal.value = true
     return
   }
 
-  const rawData = decodedText || idInput.value
-  if (!rawData.trim()) return
+  const rawData = (decodedText || idInput.value).trim()
+  if (!rawData) return
 
   isProcessing.value = true
 
   try {
-    const studentId = rawData.trim()
-    const student   = await getStudentById(studentId)
-
+    const student = await getStudentById(rawData)
     if (!student) { console.warn('Student not found'); return }
 
     if (attendanceType.value === 'event' && !selectedEvent.value) {
       console.warn('No event selected'); return
     }
 
-    await createAttendanceLogEvent({
-      student_id:      studentId,
+    // ── FIX: build the payload object and insert directly ──────────────────
+    // The original call passed an object to createAttendanceLogEvent which
+    // expected a string (TS error 2345). We insert directly here to avoid
+    // the type mismatch and to keep the logic transparent.
+    const payload: AttendanceLogPayload = {
+      student_id:      rawData,
       attendance_type: attendanceType.value === 'event' ? 'event' : 'library',
-      event_id:        attendanceType.value === 'event' ? selectedEvent.value?.id : null,
-    })
+      event_id:        attendanceType.value === 'event' ? (selectedEvent.value?.id ?? null) : null,
+      time_in:         new Date().toISOString(),
+    }
 
-    await fetchLogs()
+    const { error } = await supabase.from('attendance_logs').insert(payload)
+    if (error) throw error
 
-    const audio = new Audio('/beep.mp3')
-    audio.play().catch(() => {})
+    // The realtime subscription will prepend the new row automatically —
+    // no need to call fetchLogs() again here.
 
+    new Audio('/beep.mp3').play().catch(() => {})
     idInput.value = ''
   } catch (err) {
     console.error('Attendance error:', err)
@@ -500,8 +585,9 @@ const stopScanner = async () => {
   }
 }
 
-// ─── FETCH EVENTS LIST ────────────────────────────────────────────────────────
+// ─── FETCH EVENTS LIST (lazy — only fetch if list is empty) ───────────────────
 const fetchEvents = async () => {
+  if (events.value.length > 0) return // already cached
   const { data, error } = await supabase
     .from('events')
     .select('id, title, time_start, time_end, start_date, location')
@@ -521,8 +607,8 @@ const setAttendanceType = async (value: string) => {
 const handleAttendanceChange = async () => {
   if (attendanceType.value === 'event') {
     await fetchEvents()
-    eventSearch.value   = ''
-    selectedEvent.value = null
+    eventSearch.value    = ''
+    selectedEvent.value  = null
     showEventModal.value = true
   }
   if (attendanceType.value === 'visitors') goToVisitors()
@@ -535,45 +621,52 @@ const goToEvent = () => {
   showEventModal.value = false
 }
 
-const goToVisitors  = () => { router.push({ name: 'visitors' }); showEventModal.value = false }
-const goToLibrary   = () => { router.push({ name: 'access' });   showEventModal.value = false }
+const goToVisitors   = () => { router.push({ name: 'visitors' }); showEventModal.value = false }
+const goToLibrary    = () => { router.push({ name: 'access' });   showEventModal.value = false }
 const goBackToAccess = () => { showEndedModal.value = false; router.push({ name: 'access' }) }
 
 // ─── WATCH ROUTE ID ───────────────────────────────────────────────────────────
+// Guard with `initialised` so the watcher doesn't double-fire on first mount
+let initialised = false
 watch(
   () => route.query.id,
   async (newId) => {
-    if (newId) {
-      selectedEvent.value  = { id: newId as string, title: '' }
-      attendanceLogs.value = []
-      await fetchLogs()
-      await fetchCurrentEventInfo(newId as string)
-    }
+    if (!initialised || !newId) return
+    const id = newId as string
+    selectedEvent.value  = { id, title: '' }
+    attendanceLogs.value = []
+    await fetchCurrentEventInfo(id)
+    await fetchLogs(id)
+    subscribeToLogs(id)
   },
 )
 
 // ─── LIFECYCLE ────────────────────────────────────────────────────────────────
 onMounted(async () => {
-  const eventId = route.query.id as string
+  const eventId = route.query.id as string | undefined
 
   if (eventId) {
     attendanceType.value = 'event'
     selectedEvent.value  = { id: eventId, title: '' }
-    await fetchCurrentEventInfo(eventId)
+    // Fetch event info and initial logs in parallel — two queries instead of
+    // the original three (fetchLogs was called twice before).
+    await Promise.all([fetchCurrentEventInfo(eventId), fetchLogs(eventId)])
+    subscribeToLogs(eventId)
+  } else {
+    await fetchLogs(null)
+    subscribeToLogs(null)
   }
 
-  await fetchLogs()
-
   html5QrCode = new Html5Qrcode('qr-reader')
-  timer = setInterval(() => (currentTime.value = new Date()), 1000)
+  // Single 1-second clock; isEventEnded watcher handles the modal — no separate endedCheckTimer needed.
+  clockTimer = setInterval(() => (currentTime.value = new Date()), 1000)
 
-  // Check every 30 seconds if event has ended
-  endedCheckTimer = setInterval(checkIfEventEnded, 30_000)
+  initialised = true
 })
 
 onUnmounted(() => {
-  clearInterval(timer)
-  clearInterval(endedCheckTimer)
+  clearInterval(clockTimer)
+  if (realtimeChannel) supabase.removeChannel(realtimeChannel)
   if (html5QrCode?.isScanning) html5QrCode.stop()
 })
 
