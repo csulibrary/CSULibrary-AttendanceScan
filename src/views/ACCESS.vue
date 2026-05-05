@@ -65,7 +65,7 @@
       <div
         class="grid flex-1 min-h-0 grid-cols-1 gap-3 overflow-hidden px-3 pb-3 sm:px-4 sm:pb-4 lg:grid-cols-[2.8fr_1.2fr] lg:gap-4 lg:px-8 lg:pb-8 xl:px-10 xl:pb-10"
       >
-        <div class="flex min-h-0 flex-col overflow-hidden">
+        <div class="flex min-h-0 flex-col overflow-hidden gap-2">
           <div
             class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-white/20 bg-white/10 shadow-2xl"
           >
@@ -82,6 +82,7 @@
 
             <div class="relative min-h-0 flex-1 bg-black/30">
               <video
+                v-if="orientationVideoSrc"
                 ref="orientationVideoRef"
                 :key="orientationVideoSrc"
                 class="absolute inset-0 h-full w-full object-cover"
@@ -92,8 +93,22 @@
                 playsinline
                 controls
               ></video>
+
+              <div
+                v-else
+                class="absolute inset-0 flex items-center justify-center bg-black/20 text-center text-xs font-semibold uppercase tracking-widest text-white/50"
+              >
+                No orientation video uploaded
+              </div>
             </div>
           </div>
+
+          <button
+            @click="openAccessCodeModal"
+            class="shrink-0 self-start rounded-lg border border-red-400/70 bg-red-700/90 px-4 py-2 text-[11px] font-black uppercase tracking-wider text-white shadow-md transition-all hover:bg-red-600 sm:text-xs"
+          >
+            Time Out
+          </button>
         </div>
 
         <div class="flex min-h-0 flex-col gap-1 overflow-hidden">
@@ -257,6 +272,44 @@
       </div>
     </div>
   </div>
+
+  <Transition name="modal">
+    <div
+      v-if="showAccessCodeModal"
+      class="fixed inset-0 z-[70] flex items-center justify-center"
+      style="background: rgba(6, 32, 9, 0.75); backdrop-filter: blur(6px)"
+      @mousedown.self="closeAccessCodeModal"
+    >
+      <div class="access-code-modal">
+        <h2>Enter Access Code</h2>
+        <p>Authorized staff only for Time Out access.</p>
+
+        <input
+          ref="accessCodeInputRef"
+          v-model="inputCode"
+          type="text"
+          autocomplete="off"
+          autocapitalize="off"
+          autocorrect="off"
+          spellcheck="false"
+          placeholder="Enter code"
+          class="access-code-input"
+          @keydown.stop
+          @keyup.enter.stop.prevent="checkAccessCode"
+        />
+
+        <button type="button" class="access-code-enter-btn" @click="checkAccessCode">
+          Enter
+        </button>
+
+        <button type="button" class="access-code-cancel-btn" @click="closeAccessCodeModal">
+          Cancel
+        </button>
+
+        <p v-if="accessCodeError" class="access-code-error">Wrong code</p>
+      </div>
+    </div>
+  </Transition>
 
   <Transition name="modal">
     <div
@@ -544,6 +597,42 @@ const selectedEvent = ref<any | null>(null)
 const eventSearch = ref('')
 const router = useRouter()
 
+const HARDCODED_ACCESS_CODE = 'LIB123'
+const inputCode = ref('')
+const showAccessCodeModal = ref(false)
+const accessCodeError = ref(false)
+const accessCodeInputRef = ref<HTMLInputElement | null>(null)
+
+const openAccessCodeModal = async () => {
+  inputCode.value = ''
+  accessCodeError.value = false
+  showAccessCodeModal.value = true
+
+  await nextTick()
+  accessCodeInputRef.value?.focus()
+}
+
+const closeAccessCodeModal = () => {
+  showAccessCodeModal.value = false
+  inputCode.value = ''
+  accessCodeError.value = false
+  focusScannerInput()
+}
+
+const checkAccessCode = () => {
+  if (inputCode.value.trim() === HARDCODED_ACCESS_CODE) {
+    showAccessCodeModal.value = false
+    inputCode.value = ''
+    accessCodeError.value = false
+    router.push({ name: 'out' })
+    return
+  }
+
+  accessCodeError.value = true
+  inputCode.value = ''
+  accessCodeInputRef.value?.focus()
+}
+
 const schoolInfo = ref<any>({
   school_name: '',
   building_title: '',
@@ -560,7 +649,7 @@ const attendancePageSettings = ref({
 const orientationVideoRef = ref<HTMLVideoElement | null>(null)
 
 const orientationVideoSrc = computed(() => {
-  return attendancePageSettings.value.video_path || '/videos/qr.mp4'
+  return attendancePageSettings.value.video_path || ''
 })
 
 const backgroundStyle = computed(() => ({
@@ -762,7 +851,7 @@ const focusScannerInput = () => {
 }
 
 const keepScannerFocused = () => {
-  if (isProcessing.value) return
+  if (isProcessing.value || showAccessCodeModal.value) return
   focusScannerInput()
 }
 
@@ -1089,6 +1178,96 @@ onBeforeUnmount(() => {
   align-items: center;
   line-height: 0;
   flex-shrink: 0;
+}
+
+
+.access-code-modal {
+  width: 320px;
+  max-width: calc(100vw - 24px);
+  background: linear-gradient(145deg, #0d2b0f, #123d17);
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  color: #e8f5e9;
+  animation: modal-pop 0.2s ease-out;
+}
+
+.access-code-modal h2 {
+  margin-bottom: 0.65rem;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+.access-code-modal p {
+  margin: 0 0 1rem;
+  font-size: 12px;
+  color: #c8e6c9;
+}
+
+.access-code-input {
+  width: 100%;
+  margin-top: 10px;
+  padding: 11px 12px;
+  border-radius: 8px;
+  border: 1px solid #2e7d32;
+  background: #081c0a;
+  color: #e8f5e9;
+  outline: none;
+  box-sizing: border-box;
+  -webkit-text-security: disc;
+}
+
+.access-code-input::placeholder {
+  color: #a5d6a7;
+  -webkit-text-security: none;
+}
+
+.access-code-input:focus {
+  border-color: #66bb6a;
+  box-shadow: 0 0 0 2px rgba(102, 187, 106, 0.3);
+}
+
+.access-code-enter-btn {
+  width: 100%;
+  margin-top: 15px;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(135deg, #2e7d32, #66bb6a);
+  color: white;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.access-code-enter-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 15px rgba(102, 187, 106, 0.4);
+}
+
+.access-code-cancel-btn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  color: #e8f5e9;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.access-code-cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.access-code-error {
+  color: #ff8a80 !important;
+  margin-top: 10px !important;
+  margin-bottom: 0 !important;
+  font-size: 0.9rem !important;
 }
 
 .already-done-modal {
