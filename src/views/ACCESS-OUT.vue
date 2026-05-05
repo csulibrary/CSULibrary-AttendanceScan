@@ -82,6 +82,7 @@
 
             <div class="relative min-h-0 flex-1 bg-black/30">
               <video
+                v-if="orientationVideoSrc"
                 ref="orientationVideoRef"
                 :key="orientationVideoSrc"
                 class="absolute inset-0 h-full w-full object-cover"
@@ -92,6 +93,13 @@
                 playsinline
                 controls
               ></video>
+
+              <div
+                v-else
+                class="absolute inset-0 flex items-center justify-center bg-black/20 text-center text-xs font-semibold uppercase tracking-widest text-white/50"
+              >
+                No orientation video uploaded
+              </div>
             </div>
           </div>
         </div>
@@ -560,7 +568,7 @@ const attendancePageSettings = ref({
 const orientationVideoRef = ref<HTMLVideoElement | null>(null)
 
 const orientationVideoSrc = computed(() => {
-  return attendancePageSettings.value.video_path || '/videos/qr.mp4'
+  return attendancePageSettings.value.video_path || ''
 })
 
 const backgroundStyle = computed(() => ({
@@ -860,6 +868,7 @@ const handleLogin = async (decodedText?: string) => {
       await reopenAlreadyDoneModal()
     } else {
       beepAudio.play().catch(() => {})
+      await refreshAttendanceData()
     }
   } catch (err) {
     console.error(err)
