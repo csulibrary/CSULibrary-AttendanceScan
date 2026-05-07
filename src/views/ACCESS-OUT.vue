@@ -688,28 +688,47 @@ const fetchLogs = async () => {
   try {
     const { start, end } = getTodayRange()
 
-    const { data, error } = await supabase
-      .from('attendance_logs')
-      .select(`
-        *,
-        students (
-          id_number,
-          first_name,
-          last_name,
-          program,
-          year_level
-        )
-      `)
-      .eq('attendance_type', 'library')
-      .gte('time_out', start)
-      .lte('time_out', end)
-      .not('time_out', 'is', null)
-      .order('time_out', { ascending: false })
+    const pageSize = 1000
+    let from = 0
+    let to = pageSize - 1
+    let allLogs: any[] = []
+    let hasMore = true
 
-    if (error) throw error
+    while (hasMore) {
+      const { data, error } = await supabase
+        .from('attendance_logs')
+        .select(`
+          *,
+          students (
+            id_number,
+            first_name,
+            last_name,
+            program,
+            year_level
+          )
+        `)
+        .eq('attendance_type', 'library')
+        .gte('time_out', start)
+        .lte('time_out', end)
+        .not('time_out', 'is', null)
+        .order('time_out', { ascending: false })
+        .range(from, to)
 
-    attendanceLogs.value = data || []
-    timedOutCount.value = attendanceLogs.value.length
+      if (error) throw error
+
+      const batch = data || []
+      allLogs = [...allLogs, ...batch]
+
+      if (batch.length < pageSize) {
+        hasMore = false
+      } else {
+        from += pageSize
+        to += pageSize
+      }
+    }
+
+    attendanceLogs.value = allLogs
+    timedOutCount.value = allLogs.length
   } catch (err) {
     console.error('Failed to load timeout logs:', err)
     showAlert('Error', 'Failed to load attendance logs.', 'error')
@@ -721,8 +740,39 @@ const refreshAttendanceData = async () => {
 }
 
 const fetchEvents = async () => {
-  const { data } = await supabase.from('events').select('id, title').eq('is_active', true)
-  events.value = data || []
+  try {
+    const pageSize = 1000
+    let from = 0
+    let to = pageSize - 1
+    let allEvents: any[] = []
+    let hasMore = true
+
+    while (hasMore) {
+      const { data, error } = await supabase
+        .from('events')
+        .select('id, title')
+        .eq('is_active', true)
+        .order('title', { ascending: true })
+        .range(from, to)
+
+      if (error) throw error
+
+      const batch = data || []
+      allEvents = [...allEvents, ...batch]
+
+      if (batch.length < pageSize) {
+        hasMore = false
+      } else {
+        from += pageSize
+        to += pageSize
+      }
+    }
+
+    events.value = allEvents
+  } catch (error) {
+    console.error('Failed to fetch events:', error)
+    events.value = []
+  }
 }
 
 const setAttendanceType = async (value: string) => {
