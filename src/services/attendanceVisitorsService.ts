@@ -4,6 +4,11 @@ type VisitorPayload = {
   fullName: string
   contact: string
   institution: string
+  honorific?: string
+  designation?: string
+  gender?: string
+  city?: string
+  province?: string
 }
 
 // CREATE LOG FOR VISITORS TYPE
@@ -13,8 +18,13 @@ export const createVisitorLog = async (payload: VisitorPayload) => {
     .insert([
       {
         full_name: payload.fullName,
+        honorific: payload.honorific ?? null,
+        designation: payload.designation ?? null,
+        gender: payload.gender ?? null,
         contact: payload.contact,
         institution: payload.institution,
+        city: payload.city ?? null,
+        province: payload.province ?? null,
         time_in: new Date().toISOString(),
       }
     ])

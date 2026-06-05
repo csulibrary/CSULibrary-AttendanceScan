@@ -16,27 +16,6 @@
             />
           </div>
 
-          <div class="absolute right-0 top-1/2 -translate-y-1/2">
-            <div
-              class="flex h-20 w-20 flex-col items-center justify-center rounded-full border border-white/30 bg-white/12 text-center shadow-lg backdrop-blur-md sm:h-24 sm:w-24 md:h-28 md:w-28 lg:h-32 lg:w-32 xl:h-36 xl:w-36"
-            >
-              <div
-                class="px-2 text-[7px] font-bold uppercase leading-tight tracking-wider text-white/80 sm:text-[8px] md:text-[9px]"
-              >
-                Active Visitors
-              </div>
-              <div
-                class="mt-1 text-xl font-black leading-none text-green-300 sm:text-2xl md:text-3xl lg:text-4xl"
-              >
-                {{ activeInsideCount }}
-              </div>
-              <div
-                class="mt-1 text-[7px] font-semibold uppercase tracking-wide text-white/60 sm:text-[8px] md:text-[9px]"
-              >
-                Today
-              </div>
-            </div>
-          </div>
 
           <div class="px-24 text-center sm:px-28 md:px-32 lg:px-40">
             <h1
@@ -53,18 +32,13 @@
               HERO LEARNING COMMONS
             </h2>
 
-            <div
-              class="mt-2 inline-block rounded-md border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold sm:text-sm md:text-base lg:px-5 lg:text-xl xl:text-2xl"
-            >
-              ATTENDANCE AND CAPACITY CSU-LIBRARY ENTRY SYSTEM (ACCES)
-            </div>
           </div>
         </div>
       </div>
 
-      <div class="flex flex-row-reverse px-6 lg:px-10 pb-6 lg:pb-10 gap-6 lg:gap-8 flex-1 min-h-0">
+      <div class="flex flex-col-reverse lg:flex-row-reverse px-6 lg:px-10 pb-6 lg:pb-10 gap-6 lg:gap-8 flex-1 min-h-0">
         <!-- Right Column -->
-        <div class="w-[340px] lg:w-[400px] flex flex-col gap-3 shrink-0">
+        <div class="w-full sm:w-[340px] lg:w-[400px] flex flex-col gap-3 shrink-0 mx-auto">
           <div
             class="bg-white/40 border border-white/10 px-6 py-3 rounded-2xl text-center shrink-0"
           >
@@ -193,69 +167,6 @@
           </div>
         </div>
 
-        <!-- Left Column -->
-        <div class="flex-1 flex flex-col min-h-0 overflow-hidden">
-          <div
-            class="flex-1 bg-white/10 rounded-2xl overflow-y-auto overflow-x-hidden hidden-scroll border border-white/20 shadow-2xl"
-          >
-            <table class="w-full text-white border-collapse">
-              <thead class="sticky top-0 z-20 bg-white/40 backdrop-blur-md">
-                <tr class="text-left">
-                  <th
-                    class="p-4 uppercase text-xs lg:text-sm font-black tracking-widest border-b border-white/10 leading-tight"
-                  >
-                    Name
-                  </th>
-                  <th
-                    class="p-4 uppercase text-xs lg:text-sm font-black tracking-widest border-b border-white/10 leading-tight"
-                  >
-                    Institution/School
-                  </th>
-                  <th
-                    class="p-4 uppercase text-xs lg:text-sm font-black tracking-widest border-b border-white/10 leading-tight"
-                  >
-                    Time in
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-white/5">
-                <tr
-                  v-for="log in attendanceLogs"
-                  :key="log.id"
-                  class="hover:bg-white/5 transition-colors"
-                >
-                  <td class="p-4 font-bold text-xl">
-                    <div class="uppercase">{{ (log.honorific ? log.honorific + ' ' : '') + (log.full_name || '') }}</div>
-                    <div class="text-sm font-semibold opacity-80">{{ log.designation || pendingMeta[log.id]?.designation || '' }}</div>
-                  </td>
-                  <td class="p-4 text-base opacity-80">
-                    <div>{{ log.institution_school || log.institution || pendingMeta[log.id]?.institution || '—' }}</div>
-                    <div class="text-sm text-white/60">{{ [log.city || pendingMeta[log.id]?.city, log.province || pendingMeta[log.id]?.province].filter(Boolean).join(', ') }}</div>
-                  </td>
-                  <td class="p-4 text-base opacity-80 font-mono font-semibold">
-                    {{
-                      log.time_in
-                        ? new Date(log.time_in).toLocaleString([], {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })
-                        : '—'
-                    }}
-                  </td>
-                </tr>
-
-                <tr v-if="attendanceLogs.length === 0">
-                  <td colspan="3" class="p-6 text-center text-sm text-white/70">
-                    No visitor records yet.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
       </div>
     </div>
   </div>
