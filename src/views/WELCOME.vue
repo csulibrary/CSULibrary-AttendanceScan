@@ -27,11 +27,7 @@
         </router-link>
 
         <router-link to="/visitors" class="menu-btn">
-          Visitors Attendance Display / Manual Type
-        </router-link>
-
-        <router-link to="/visitors/qr" class="menu-btn">
-          Visitors' QR Mobile Look
+          Visitors Attendance Display / Manual Input
         </router-link>
 
       </div>
