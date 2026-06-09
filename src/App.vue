@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- ACCESS MODAL -->
-    <div v-if="!isAuthorized" class="modal-overlay">
+    <div v-if="!isAuthorized && !isRouteExempt" class="modal-overlay">
       <div class="modal">
         <h2>Enter Access Code</h2>
         <input
@@ -15,23 +15,31 @@
     </div>
 
     <!-- MAIN APP -->
-    <router-view v-if="isAuthorized" />
+    <router-view v-if="isAuthorized || isRouteExempt" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { useRoute } from 'vue-router'
 
 const HARDCODED_CODE = 'LIB123' // 🔑 change this
+const EXEMPT_ROUTES = ['/visitors/qr'] // Routes that bypass access code
 
+const route = useRoute()
 const inputCode = ref('')
 const isAuthorized = ref(false)
 const error = ref(false)
 
+// Check if current route is exempt from access code requirement
+const isRouteExempt = computed(() => {
+  return EXEMPT_ROUTES.includes(route.path)
+})
+
 // optional: remember access
 onMounted(() => {
   const saved = localStorage.getItem('authorized')
-  if (saved === 'true') {
+  if (saved === 'true' || isRouteExempt.value) {
     isAuthorized.value = true
   }
 })
