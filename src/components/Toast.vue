@@ -34,7 +34,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const visible = ref(false)
-let timeoutId: NodeJS.Timeout | null = null
+let timeoutId: ReturnType<typeof setTimeout> | null = null
 
 watch(
   () => props.show,
