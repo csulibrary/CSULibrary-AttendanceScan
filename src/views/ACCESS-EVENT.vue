@@ -3,11 +3,11 @@
     class="relative min-h-screen w-screen text-white flex flex-col overflow-x-hidden bg-[#0b3d1f]"
   >
     <div
-      class="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-20"
+      class="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-40"
       style="background-image: url('/hero-outside.png')"
     ></div>
 
-      <div class="shrink-0 px-3 pt-3 pb-3 sm:px-4 sm:pt-4 sm:pb-4 lg:px-8 lg:pt-8 lg:pb-8 xl:px-10 xl:pt-10 xl:pb-10">
+      <div :class="['shrink-0 px-3 pt-3 pb-3 sm:px-4 sm:pt-4 sm:pb-4 lg:px-8 lg:pt-8 lg:pb-8 xl:px-10 xl:pt-10 xl:pb-10', showEventModal ? 'hidden' : '']">
         <div class="relative flex items-center justify-center">
           <div class="absolute left-0 top-1/2 -translate-y-1/2">
             <img
@@ -41,7 +41,7 @@
         </div>
       </div>
 
-    <div class="relative z-10 flex flex-col h-full w-full">
+    <div :class="['relative z-10 flex flex-col h-full w-full', showEventModal ? 'hidden' : '']">
       <div
         class="flex flex-row-reverse px-6 lg:px-10 pb-6 lg:pb-10 gap-6 lg:gap-8 flex-1 overflow-hidden"
       >
@@ -342,17 +342,9 @@ const ICON_EVENT = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" 
   <path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>`
 
-const ICON_VISITORS = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="6" cy="5" r="2" stroke="currentColor" stroke-width="1.3"/>
-  <path d="M2 13c0-2.21 1.79-4 4-4s4 1.79 4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-  <circle cx="11.5" cy="5.5" r="1.5" stroke="currentColor" stroke-width="1.2"/>
-  <path d="M13.5 13c0-1.66-1.12-3-2.5-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-</svg>`
-
 const attendanceTypes = [
   { value: 'library',  label: 'Library',  icon: ICON_LIBRARY  },
   { value: 'event',    label: 'Event',    icon: ICON_EVENT    },
-  { value: 'visitors', label: 'Visitors', icon: ICON_VISITORS },
 ]
 
 // ─── TYPES ────────────────────────────────────────────────────────────────────
@@ -639,16 +631,28 @@ const goBackToAccess = () => { showEndedModal.value = false; router.push({ name:
 // ─── WATCH ROUTE ID ───────────────────────────────────────────────────────────
 // Guard with `initialised` so the watcher doesn't double-fire on first mount
 let initialised = false
+let hadEventId = false
 watch(
   () => route.query.id,
   async (newId) => {
-    if (!initialised || !newId) return
-    const id = newId as string
-    selectedEvent.value  = { id, title: '' }
-    attendanceLogs.value = []
-    await fetchCurrentEventInfo(id)
-    await fetchLogs(id)
-    subscribeToLogs(id)
+    // On first mount, just track if we have an ID
+    if (!initialised) return
+
+    // If we had an event ID and now it's gone, user pressed back — redirect to welcome
+    if (hadEventId && !newId) {
+      router.push({ name: 'welcome' })
+      return
+    }
+
+    // Normal case: eventId changed to a new value
+    if (newId) {
+      const id = newId as string
+      selectedEvent.value  = { id, title: '' }
+      attendanceLogs.value = []
+      await fetchCurrentEventInfo(id)
+      await fetchLogs(id)
+      subscribeToLogs(id)
+    }
   },
 )
 
@@ -663,7 +667,12 @@ onMounted(async () => {
     // the original three (fetchLogs was called twice before).
     await Promise.all([fetchCurrentEventInfo(eventId), fetchLogs(eventId)])
     subscribeToLogs(eventId)
+    hadEventId = true
   } else {
+    // No event selected yet - show the event modal to let user choose
+    attendanceType.value = 'event'
+    await fetchEvents()
+    showEventModal.value = true
     await fetchLogs(null)
     subscribeToLogs(null)
   }

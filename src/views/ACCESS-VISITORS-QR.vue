@@ -1,259 +1,163 @@
 <template>
-  <div class="relative h-screen w-screen text-white flex flex-col overflow-hidden bg-[#0b3d1f]">
+  <div class="relative min-h-screen w-screen text-white flex flex-col overflow-x-hidden bg-[#0b3d1f]">
     <div
       class="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-20"
       :style="backgroundStyle"
     ></div>
 
     <div class="relative z-10 flex flex-col h-full w-full">
-      <div class="shrink-0 px-3 pt-2 pb-2 sm:px-4 lg:px-8 xl:px-10">
-        <div class="relative flex items-center justify-center">
-          <div class="absolute left-0 top-1/2 -translate-y-1/2">
-            <img
-              src="/csu-logo.png"
-              alt="Logo"
-              class="h-20 w-20 object-contain sm:h-24 sm:w-24 md:h-28 md:w-28 lg:h-32 lg:w-32 xl:h-36 xl:w-36"
-            />
-          </div>
-
-          <div class="absolute right-0 top-1/2 -translate-y-1/2">
-            <div
-              class="flex h-20 w-20 flex-col items-center justify-center rounded-full border border-white/30 bg-white/12 text-center shadow-lg backdrop-blur-md sm:h-24 sm:w-24 md:h-28 md:w-28 lg:h-32 lg:w-32 xl:h-36 xl:w-36"
-            >
-              <div
-                class="px-2 text-[7px] font-bold uppercase leading-tight tracking-wider text-white/80 sm:text-[8px] md:text-[9px]"
-              >
-                Active Visitors
-              </div>
-              <div
-                class="mt-1 text-xl font-black leading-none text-green-300 sm:text-2xl md:text-3xl lg:text-4xl"
-              >
-                {{ activeInsideCount }}
-              </div>
-              <div
-                class="mt-1 text-[7px] font-semibold uppercase tracking-wide text-white/60 sm:text-[8px] md:text-[9px]"
-              >
-                Today
-              </div>
-            </div>
-          </div>
-
-          <div class="px-24 text-center sm:px-28 md:px-32 lg:px-40">
-            <h1
-              class="bg-[linear-gradient(90deg,#FFC300_0%,#ffffff_50%,#1b5e20_100%)] bg-clip-text text-2xl font-black uppercase leading-none text-transparent drop-shadow-md sm:text-3xl md:text-4xl lg:text-6xl xl:text-7xl"
-              style="font-family: Impact"
-            >
-              CARAGA STATE UNIVERSITY
-            </h1>
-
-            <h2
-              class="mt-1 text-lg font-bold uppercase text-green-100 sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl"
-              style="font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif"
-            >
-              HERO LEARNING COMMONS
-            </h2>
-
-            <div
-              class="mt-2 inline-block rounded-md border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold sm:text-sm md:text-base lg:px-5 lg:text-xl xl:text-2xl"
-            >
-              ATTENDANCE AND CAPACITY CSU-LIBRARY ENTRY SYSTEM (ACCES)
-            </div>
-          </div>
+      <!-- Header Section -->
+      <div class="shrink-0 px-3 pt-2 pb-3 sm:px-4 sm:pt-3 sm:pb-4 md:px-6 md:pt-4 md:pb-5 lg:px-8 lg:pt-5 lg:pb-6 xl:px-10 xl:pt-6 xl:pb-8">
+        <div class="text-center mb-2 sm:mb-3">
+          <h1
+            class="bg-[linear-gradient(90deg,#FFC300_0%,#ffffff_50%,#1b5e20_100%)] bg-clip-text text-lg font-black uppercase leading-tight text-transparent drop-shadow-md sm:text-2xl md:text-3xl lg:text-5xl xl:text-6xl"
+            style="font-family: Impact"
+          >
+            CARAGA STATE UNIVERSITY
+          </h1>
+          <h2
+            class="mt-1 text-base font-bold uppercase text-green-100 sm:text-lg md:text-2xl lg:text-3xl xl:text-4xl"
+            style="font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif"
+          >
+            HERO LEARNING COMMONS
+          </h2>
         </div>
       </div>
 
-      <div class="flex flex-row-reverse px-6 lg:px-10 pb-6 lg:pb-10 gap-6 lg:gap-8 flex-1 min-h-0">
-        <!-- Right Column -->
-        <div class="w-[340px] lg:w-[400px] flex flex-col gap-3 shrink-0">
-          <div
-            class="bg-white/40 border border-white/10 px-6 py-3 rounded-2xl text-center shrink-0"
-          >
-            <div class="text-xs lg:text-base opacity-70 uppercase font-bold">
-              {{ formattedDate }}
-            </div>
-            <div class="text-2xl lg:text-3xl font-mono font-bold text-green-400 mt-1">
-              {{ formattedTime }}
-            </div>
+      <!-- Main Content Area -->
+      <div class="flex flex-col px-4 pb-4 gap-3 flex-1 min-h-0 sm:px-5 sm:pb-5 sm:gap-4 md:px-6 md:pb-6 md:gap-5 lg:px-8 lg:pb-8 lg:gap-6 xl:px-10 xl:pb-10 xl:gap-8 items-center sm:items-stretch">
+        
+        <!-- Date & Time Display -->
+        <div
+          class="w-full max-w-sm bg-white/40 border border-white/10 px-4 py-3 rounded-xl text-center shrink-0 sm:px-5 sm:py-4 sm:rounded-2xl md:px-6 md:py-5 lg:px-8 lg:py-6"
+        >
+          <div class="text-[10px] sm:text-xs md:text-sm opacity-70 uppercase font-bold tracking-wide">
+            {{ formattedDate }}
           </div>
-
-          <div class="bg-white/10 border rounded-2xl overflow-hidden flex flex-col shadow-2xl shrink-0">
-            <div class="p-3 bg-white/10 flex justify-between items-center px-4 shrink-0">
-              <span class="text-xs font-black tracking-widest uppercase">Visitor Details</span>
-            </div>
-
-            <div class="p-4 bg-black/40 flex flex-col gap-4">
-
-              <!-- Honorific dropdown beside Name -->
-
-              <div class="flex flex-col gap-2">
-                <label class="text-[11px] font-semibold tracking-[0.18em] uppercase text-white/60">
-                  Name
-                </label>
-                <div class="flex gap-2">
-                  <select
-                    v-model="honorificInput"
-                    class="honorific-select p-3 rounded border border-white/80 text-white bg-transparent text-sm lg:text-base w-28"
-                  >
-                    <option value="">None</option>
-                    <option value="Mr">Mr</option>
-                    <option value="Ms">Ms</option>
-                    <option value="Mrs">Mrs</option>
-                  </select>
-
-                  <input
-                    v-model="idInput"
-                    type="text"
-                    placeholder="Enter visitor name"
-                    class="flex-1 p-3 rounded border border-white/80 text-white bg-transparent text-sm lg:text-base"
-                  />
-                </div>
-              </div>
-
-              <div class="flex flex-col gap-2">
-                <label class="text-[11px] font-semibold tracking-[0.18em] uppercase text-white/60">
-                  Designation
-                </label>
-                <input
-                  v-model="designationInput"
-                  type="text"
-                  placeholder="Enter visitor's designation"
-                  class="w-full p-3 rounded border border-white/80 text-white bg-transparent text-sm lg:text-base"
-                />
-              </div>
-
-              <div class="flex flex-col gap-2">
-                <label class="text-[11px] font-semibold tracking-[0.18em] uppercase text-white/60">
-                  Email or contact number
-                </label>
-                <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-                  <input
-                    v-model="emailInput"
-                    type="email"
-                    placeholder="Email address"
-                    class="p-3 rounded border border-white/80 text-white bg-transparent text-sm lg:text-base w-full"
-                  />
-                  <span class="text-white/60 font-semibold text-sm uppercase whitespace-nowrap">OR</span>
-                  <input
-                    v-model="cellphoneInput"
-                    type="text"
-                    placeholder="Contact no."
-                    class="p-3 rounded border border-white/80 text-white bg-transparent text-sm lg:text-base w-full"
-                  />
-                </div>
-              </div>
-
-              <div class="flex flex-col gap-2">
-                <label class="text-[11px] font-semibold tracking-[0.18em] uppercase text-white/60">
-                  Institution/School/Company
-                </label>
-                <input
-                  v-model="institutionInput"
-                  type="text"
-                  placeholder="Institution / School/ Company"
-                  @keyup.enter="handleLogin()"
-                  class="w-full p-3 rounded border border-white/80 text-white bg-transparent text-sm lg:text-base"
-                />
-              </div>
-
-                <div class="flex flex-col gap-2">
-                <label class="text-[11px] font-semibold tracking-[0.18em] uppercase text-white/60">
-                  City
-                </label>
-                <input
-                  v-model="cityInput"
-                  type="text"
-                  placeholder="City"
-                  @keyup.enter="handleLogin()"
-                  class="w-full p-3 rounded border border-white/80 text-white bg-transparent text-sm lg:text-base"
-                />
-              </div>
-
-                              <div class="flex flex-col gap-2">
-                <label class="text-[11px] font-semibold tracking-[0.18em] uppercase text-white/60">
-                  Province
-                </label>
-                <input
-                  v-model="provinceInput"
-                  type="text"
-                  placeholder="Province"
-                  @keyup.enter="handleLogin()"
-                  class="w-full p-3 rounded border border-white/80 text-white bg-transparent text-sm lg:text-base"
-                />
-              </div>
-
-
-              <button
-                @click="handleLogin()"
-                :disabled="!canAddVisitor || isProcessing"
-                class="w-full py-3 rounded-lg font-bold transition-all border border-green-500 shadow-md text-sm lg:text-base disabled:opacity-50 disabled:cursor-not-allowed bg-green-700 hover:bg-green-600"
-              >
-                {{ isProcessing ? 'ADDING...' : 'ADD' }}
-              </button>
-            </div>
+          <div class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-mono font-bold text-green-400 mt-1.5 sm:mt-2">
+            {{ formattedTime }}
           </div>
         </div>
 
-        <!-- Left Column -->
-        <div class="flex-1 flex flex-col min-h-0 overflow-hidden">
-          <div
-            class="flex-1 bg-white/10 rounded-2xl overflow-y-auto overflow-x-hidden hidden-scroll border border-white/20 shadow-2xl"
-          >
-            <table class="w-full text-white border-collapse">
-              <thead class="sticky top-0 z-20 bg-white/40 backdrop-blur-md">
-                <tr class="text-left">
-                  <th
-                    class="p-4 uppercase text-xs lg:text-sm font-black tracking-widest border-b border-white/10 leading-tight"
-                  >
-                    Name
-                  </th>
-                  <th
-                    class="p-4 uppercase text-xs lg:text-sm font-black tracking-widest border-b border-white/10 leading-tight"
-                  >
-                    Institution/School
-                  </th>
-                  <th
-                    class="p-4 uppercase text-xs lg:text-sm font-black tracking-widest border-b border-white/10 leading-tight"
-                  >
-                    Time in
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-white/5">
-                <tr
-                  v-for="log in attendanceLogs"
-                  :key="log.id"
-                  class="hover:bg-white/5 transition-colors"
-                >
-                  <td class="p-4 font-bold text-xl">
-                    <div class="uppercase">{{ (log.honorific ? log.honorific + ' ' : '') + (log.full_name || '') }}</div>
-                    <div class="text-sm font-semibold opacity-80">{{ log.designation || pendingMeta[log.id]?.designation || '' }}</div>
-                  </td>
-                  <td class="p-4 text-base opacity-80">
-                    <div>{{ log.institution_school || log.institution || pendingMeta[log.id]?.institution || '—' }}</div>
-                    <div class="text-sm text-white/60">{{ [log.city || pendingMeta[log.id]?.city, log.province || pendingMeta[log.id]?.province].filter(Boolean).join(', ') }}</div>
-                  </td>
-                  <td class="p-4 text-base opacity-80 font-mono font-semibold">
-                    {{
-                      log.time_in
-                        ? new Date(log.time_in).toLocaleString([], {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })
-                        : '—'
-                    }}
-                  </td>
-                </tr>
+        <!-- Visitor Details Form -->
+        <div class="w-full max-w-sm bg-white/10 border rounded-xl overflow-hidden flex flex-col shadow-2xl shrink-0 sm:rounded-2xl">
+          <div class="p-3 sm:p-4 md:p-5 bg-white/10 flex justify-between items-center px-4 sm:px-5 md:px-6 shrink-0">
+            <span class="text-xs sm:text-sm font-black tracking-widest uppercase">Visitor Details</span>
+          </div>
 
-                <tr v-if="attendanceLogs.length === 0">
-                  <td colspan="3" class="p-6 text-center text-sm text-white/70">
-                    No visitor records yet.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="p-4 sm:p-5 md:p-6 bg-black/40 flex flex-col gap-3 sm:gap-4 md:gap-5">
+
+            <!-- Name Field with Honorific -->
+            <div class="flex flex-col gap-2 sm:gap-2.5">
+              <label class="text-[10px] sm:text-[11px] font-semibold tracking-[0.18em] uppercase text-white/60">
+                Name
+              </label>
+              <div class="flex flex-col sm:flex-row gap-2 sm:gap-2.5">
+                <select
+                  v-model="honorificInput"
+                  class="honorific-select p-2.5 sm:p-3 rounded border border-white/80 text-white bg-transparent text-xs sm:text-sm md:text-base w-full sm:w-24 md:w-28"
+                >
+                  <option value="">None</option>
+                  <option value="Mr">Mr</option>
+                  <option value="Ms">Ms</option>
+                  <option value="Mrs">Mrs</option>
+                </select>
+
+                <input
+                  v-model="idInput"
+                  type="text"
+                  placeholder="Enter visitor name"
+                  class="flex-1 p-2.5 sm:p-3 rounded border border-white/80 text-white bg-transparent text-xs sm:text-sm md:text-base"
+                />
+              </div>
+            </div>
+
+            <!-- Designation Field -->
+            <div class="flex flex-col gap-2 sm:gap-2.5">
+              <label class="text-[10px] sm:text-[11px] font-semibold tracking-[0.18em] uppercase text-white/60">
+                Designation
+              </label>
+              <input
+                v-model="designationInput"
+                type="text"
+                placeholder="Enter visitor's designation"
+                class="w-full p-2.5 sm:p-3 rounded border border-white/80 text-white bg-transparent text-xs sm:text-sm md:text-base"
+              />
+            </div>
+
+            <!-- Contact Information -->
+            <div class="flex flex-col gap-2 sm:gap-2.5">
+              <label class="text-[10px] sm:text-[11px] font-semibold tracking-[0.18em] uppercase text-white/60">
+                Email or contact number
+              </label>
+              <div class="flex flex-col sm:grid sm:grid-cols-[1fr_auto_1fr] sm:items-center gap-2 sm:gap-2.5">
+                <input
+                  v-model="emailInput"
+                  type="email"
+                  placeholder="Email address"
+                  class="p-2.5 sm:p-3 rounded border border-white/80 text-white bg-transparent text-xs sm:text-sm md:text-base w-full"
+                />
+                <span class="hidden sm:block text-white/60 font-semibold text-xs sm:text-sm uppercase text-center">OR</span>
+                <span class="sm:hidden text-white/60 font-semibold text-xs uppercase text-center">— OR —</span>
+                <input
+                  v-model="cellphoneInput"
+                  type="text"
+                  placeholder="Contact no."
+                  class="p-2.5 sm:p-3 rounded border border-white/80 text-white bg-transparent text-xs sm:text-sm md:text-base w-full"
+                />
+              </div>
+            </div>
+
+            <!-- Institution/School/Company -->
+            <div class="flex flex-col gap-2 sm:gap-2.5">
+              <label class="text-[10px] sm:text-[11px] font-semibold tracking-[0.18em] uppercase text-white/60">
+                Institution/School/Company
+              </label>
+              <input
+                v-model="institutionInput"
+                type="text"
+                placeholder="Institution / School / Company"
+                @keyup.enter="handleLogin()"
+                class="w-full p-2.5 sm:p-3 rounded border border-white/80 text-white bg-transparent text-xs sm:text-sm md:text-base"
+              />
+            </div>
+
+            <!-- City Field -->
+            <div class="flex flex-col gap-2 sm:gap-2.5">
+              <label class="text-[10px] sm:text-[11px] font-semibold tracking-[0.18em] uppercase text-white/60">
+                City
+              </label>
+              <input
+                v-model="cityInput"
+                type="text"
+                placeholder="City"
+                @keyup.enter="handleLogin()"
+                class="w-full p-2.5 sm:p-3 rounded border border-white/80 text-white bg-transparent text-xs sm:text-sm md:text-base"
+              />
+            </div>
+
+            <!-- Province Field -->
+            <div class="flex flex-col gap-2 sm:gap-2.5">
+              <label class="text-[10px] sm:text-[11px] font-semibold tracking-[0.18em] uppercase text-white/60">
+                Province
+              </label>
+              <input
+                v-model="provinceInput"
+                type="text"
+                placeholder="Province"
+                @keyup.enter="handleLogin()"
+                class="w-full p-2.5 sm:p-3 rounded border border-white/80 text-white bg-transparent text-xs sm:text-sm md:text-base"
+              />
+            </div>
+
+            <!-- Submit Button -->
+            <button
+              @click="handleLogin()"
+              :disabled="!canAddVisitor || isProcessing"
+              class="w-full py-2.5 sm:py-3 md:py-4 rounded-lg font-bold transition-all border border-green-500 shadow-md text-xs sm:text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed bg-green-700 hover:bg-green-600"
+            >
+              {{ isProcessing ? 'ADDING...' : 'ADD' }}
+            </button>
           </div>
         </div>
       </div>
@@ -389,11 +293,15 @@
       </div>
     </div>
   </Transition>
+
+  <!-- Toast Notification -->
+  <Toast :show="showToast" message="You are now logged in!" :duration="3000" />
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import Toast from '@/components/Toast.vue'
 import {
   createVisitorLog,
   getVisitorLogs,
@@ -455,6 +363,7 @@ const isProcessing = ref(false)
 const optionalTimeOutMap = ref<Record<string, string>>({})
 const pendingMeta = ref<Record<string, { email: string; cellphone: string; institution: string; honorific?: string; designation?: string; gender?: string; city?: string; province?: string }>>({})
 const currentTime = ref(new Date())
+const showToast = ref(false)
 let timer: any
 let schoolInfoTimer: any
 let attendancePageChannel: any = null
@@ -596,6 +505,9 @@ const handleLogin = async () => {
     }
 
     await refreshAttendanceData()
+
+    // Show toast notification
+    showToast.value = true
 
     idInput.value = ''
     honorificInput.value = ''
@@ -788,27 +700,46 @@ const formattedTime = computed(() =>
 }
 
 .event-modal {
-  width: 480px;
+  width: 100%;
+  max-width: 480px;
+  margin: 16px;
   background: #ffffff;
   border: 1px solid #e5e5e5;
-  border-radius: 24px;
+  border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 12px 48px rgba(0, 0, 0, 0.18);
   animation: modal-pop 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+@media (min-width: 640px) {
+  .event-modal {
+    border-radius: 24px;
+    max-height: 80vh;
+  }
 }
 
 .event-modal-header {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 22px 24px 18px;
+  gap: 12px;
+  padding: 16px;
   border-bottom: 1px solid #f0f0f0;
+  flex-wrap: wrap;
+}
+
+@media (min-width: 640px) {
+  .event-modal-header {
+    gap: 14px;
+    padding: 22px 24px 18px;
+  }
 }
 
 .event-modal-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
   background: #eaf3de;
   border: 1px solid #c8e09a;
   display: flex;
@@ -817,27 +748,47 @@ const formattedTime = computed(() =>
   flex-shrink: 0;
 }
 
+@media (min-width: 640px) {
+  .event-modal-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+  }
+}
+
 .event-modal-header-text {
   flex: 1;
 }
 
 .event-modal-title {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 800;
   color: #111;
   margin-bottom: 3px;
   letter-spacing: -0.01em;
 }
 
+@media (min-width: 640px) {
+  .event-modal-title {
+    font-size: 16px;
+  }
+}
+
 .event-modal-subtitle {
-  font-size: 12.5px;
+  font-size: 11px;
   color: #999;
 }
 
+@media (min-width: 640px) {
+  .event-modal-subtitle {
+    font-size: 12.5px;
+  }
+}
+
 .event-modal-close {
-  width: 32px;
-  height: 32px;
-  border-radius: 9px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
   border: 1px solid #e8e8e8;
   background: #f5f5f5;
   color: #aaa;
@@ -851,6 +802,14 @@ const formattedTime = computed(() =>
     color 0.15s;
 }
 
+@media (min-width: 640px) {
+  .event-modal-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+  }
+}
+
 .event-modal-close:hover {
   background: #ebebeb;
   color: #555;
@@ -858,21 +817,34 @@ const formattedTime = computed(() =>
 
 .event-modal-search-wrap {
   position: relative;
-  padding: 16px 20px 0;
+  padding: 12px 16px 0;
+}
+
+@media (min-width: 640px) {
+  .event-modal-search-wrap {
+    padding: 16px 20px 0;
+  }
 }
 
 .event-modal-search-icon {
   position: absolute;
-  left: 34px;
-  top: 26px;
+  left: 28px;
+  top: 20px;
   pointer-events: none;
+}
+
+@media (min-width: 640px) {
+  .event-modal-search-icon {
+    left: 34px;
+    top: 26px;
+  }
 }
 
 .event-modal-search-input {
   width: 100%;
-  padding: 11px 14px 11px 36px;
-  font-size: 13.5px;
-  border-radius: 10px;
+  padding: 9px 12px 9px 32px;
+  font-size: 12px;
+  border-radius: 8px;
   border: 1px solid #e8e8e8;
   background: #f7f7f7;
   color: #111;
@@ -881,6 +853,14 @@ const formattedTime = computed(() =>
   transition:
     border-color 0.15s,
     background 0.15s;
+}
+
+@media (min-width: 640px) {
+  .event-modal-search-input {
+    padding: 11px 14px 11px 36px;
+    font-size: 13.5px;
+    border-radius: 10px;
+  }
 }
 
 .event-modal-search-input::placeholder {
@@ -893,16 +873,29 @@ const formattedTime = computed(() =>
 }
 
 .event-modal-body {
-  padding: 16px 20px 6px;
+  padding: 12px 16px 6px;
+}
+
+@media (min-width: 640px) {
+  .event-modal-body {
+    padding: 16px 20px 6px;
+  }
 }
 
 .event-modal-section-label {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #c0c0c0;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+}
+
+@media (min-width: 640px) {
+  .event-modal-section-label {
+    font-size: 10px;
+    margin-bottom: 10px;
+  }
 }
 
 .event-modal-list {
@@ -921,9 +914,9 @@ const formattedTime = computed(() =>
 .event-modal-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  border-radius: 12px;
+  gap: 10px;
+  padding: 11px 12px;
+  border-radius: 10px;
   border: 1.5px solid #efefef;
   background: #fafafa;
   color: #333;
@@ -931,6 +924,14 @@ const formattedTime = computed(() =>
   text-align: left;
   width: 100%;
   transition: all 0.15s;
+}
+
+@media (min-width: 640px) {
+  .event-modal-item {
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 12px;
+  }
 }
 
 .event-modal-item:hover {
@@ -945,9 +946,9 @@ const formattedTime = computed(() =>
 }
 
 .event-modal-item-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 9px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   background: #f0f0f0;
   border: 1px solid #e5e5e5;
   display: flex;
@@ -958,6 +959,14 @@ const formattedTime = computed(() =>
   transition:
     background 0.15s,
     color 0.15s;
+}
+
+@media (min-width: 640px) {
+  .event-modal-item-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+  }
 }
 
 .event-modal-item.active .event-modal-item-icon {
@@ -972,7 +981,7 @@ const formattedTime = computed(() =>
 }
 
 .event-modal-name {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 700;
   color: #222;
   white-space: nowrap;
@@ -980,6 +989,12 @@ const formattedTime = computed(() =>
   text-overflow: ellipsis;
   letter-spacing: 0.01em;
   transition: color 0.15s;
+}
+
+@media (min-width: 640px) {
+  .event-modal-name {
+    font-size: 14px;
+  }
 }
 
 .event-modal-item.active .event-modal-name {
@@ -1049,34 +1064,68 @@ const formattedTime = computed(() =>
 
 .event-modal-footer {
   display: flex;
+  flex-direction: column;
+  gap: 12px;
   justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-  padding: 16px 20px 22px;
+  align-items: flex-start;
+  padding: 12px 16px 16px;
   border-top: 1px solid #f0f0f0;
-  margin-top: 10px;
+  margin-top: 8px;
+}
+
+@media (min-width: 640px) {
+  .event-modal-footer {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 20px 22px;
+    margin-top: 10px;
+  }
 }
 
 .event-modal-selection-hint {
-  font-size: 12.5px;
+  font-size: 11px;
   color: #bbb;
+}
+
+@media (min-width: 640px) {
+  .event-modal-selection-hint {
+    font-size: 12.5px;
+  }
 }
 
 .event-modal-footer-actions {
   display: flex;
   gap: 8px;
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .event-modal-footer-actions {
+    width: auto;
+  }
 }
 
 .event-modal-btn-cancel {
-  padding: 10px 18px;
-  border-radius: 10px;
+  padding: 8px 14px;
+  border-radius: 8px;
   border: 1px solid #e5e5e5;
   background: #f5f5f5;
   color: #555;
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s;
+  flex: 1;
+}
+
+@media (min-width: 640px) {
+  .event-modal-btn-cancel {
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 13px;
+    flex: none;
+  }
 }
 
 .event-modal-btn-cancel:hover {
@@ -1087,17 +1136,30 @@ const formattedTime = computed(() =>
 .event-modal-btn-proceed {
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 10px 20px;
-  border-radius: 10px;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
   border: none;
   background: #3b6d11;
   color: #fff;
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 600;
   cursor: not-allowed;
   opacity: 0.35;
   transition: all 0.15s;
+  flex: 1;
+}
+
+@media (min-width: 640px) {
+  .event-modal-btn-proceed {
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    flex: none;
+    gap: 7px;
+    justify-content: flex-start;
+  }
 }
 
 .event-modal-btn-proceed.ready {
