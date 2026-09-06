@@ -9,6 +9,7 @@ type VisitorPayload = {
   gender?: string
   city?: string
   province?: string
+  purpose?: string
 }
 
 // CREATE LOG FOR VISITORS TYPE
@@ -25,6 +26,7 @@ export const createVisitorLog = async (payload: VisitorPayload) => {
         institution: payload.institution,
         city: payload.city ?? null,
         province: payload.province ?? null,
+        purpose: payload.purpose ?? null,
         time_in: new Date().toISOString(),
       }
     ])
