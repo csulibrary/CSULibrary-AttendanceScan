@@ -149,16 +149,15 @@
               </span>
             </div>
 
-            <div class="px-3 pt-3">
+            <div class="px-3 pt-3 relative">
               <div
                 id="qr-reader"
-                class="mx-auto w-full rounded-xl bg-black/20"
+                class="mx-auto w-full rounded-xl bg-black/20 relative overflow-hidden"
                 style="height: clamp(120px, 16vh, 170px)"
               ></div>
-            </div>
 
-            <div class="shrink-0 bg-black/40 px-3 pb-3 pt-3">
-              <div class="mx-auto flex w-full flex-col gap-2">
+              <!-- Overlay input placed outside #qr-reader so QR library won't remove it -->
+              <div class="absolute inset-3 flex items-center justify-center px-3 pointer-events-none">
                 <input
                   ref="scannerInput"
                   v-model="idInput"
@@ -169,8 +168,14 @@
                   @paste="handlePaste"
                   @keyup.enter.prevent="handleEnter"
                   @blur="keepScannerFocused"
-                  class="w-full rounded border border-white/80 bg-transparent p-2 text-sm text-white placeholder:text-white/45"
+                  class="w-full h-full rounded-xl border-2 border-white/80 bg-black/60 p-6 text-4xl font-extrabold text-white placeholder:text-white/70 placeholder:text-4xl placeholder:font-extrabold focus:outline-none focus:ring-4 focus:ring-red-500 pointer-events-auto"
+                  style="backdrop-filter: blur(6px);"
                 />
+              </div>
+            </div>
+
+            <div class="shrink-0 bg-black/40 px-3 pb-3 pt-2">
+              <div class="mx-auto flex w-full flex-col gap-2">
                 <button
                   @click="handleLogin()"
                   class="w-full rounded-lg border border-red-500 bg-red-700 py-2.5 text-sm font-bold shadow-md transition-all hover:bg-red-600"

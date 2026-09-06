@@ -75,12 +75,12 @@
             <!-- Designation Field -->
             <div class="flex flex-col gap-2 sm:gap-2.5">
               <label class="text-[10px] sm:text-[11px] font-semibold tracking-[0.18em] uppercase text-white/60">
-                Designation
+                Office/Person To Visit
               </label>
               <input
                 v-model="designationInput"
                 type="text"
-                placeholder="Enter visitor's designation"
+                placeholder="Enter office/person inside the library"
                 class="w-full p-2.5 sm:p-3 rounded border border-white/80 text-white bg-transparent text-xs sm:text-sm md:text-base"
               />
             </div>
@@ -145,6 +145,20 @@
                 v-model="provinceInput"
                 type="text"
                 placeholder="Province"
+                @keyup.enter="handleLogin()"
+                class="w-full p-2.5 sm:p-3 rounded border border-white/80 text-white bg-transparent text-xs sm:text-sm md:text-base"
+              />
+            </div>
+
+            <!-- Purpose Field -->
+            <div class="flex flex-col gap-2 sm:gap-2.5">
+              <label class="text-[10px] sm:text-[11px] font-semibold tracking-[0.18em] uppercase text-white/60">
+                Purpose
+              </label>
+              <input
+                v-model="purposeInput"
+                type="text"
+                placeholder="Purpose of visit"
                 @keyup.enter="handleLogin()"
                 class="w-full p-2.5 sm:p-3 rounded border border-white/80 text-white bg-transparent text-xs sm:text-sm md:text-base"
               />
@@ -357,11 +371,12 @@ const cellphoneInput = ref('')
 const institutionInput = ref('')
 const cityInput = ref('')
 const provinceInput = ref('')
+const purposeInput = ref('')
 const attendanceLogs = ref<any[]>([])
 const activeInsideCount = ref(0)
 const isProcessing = ref(false)
 const optionalTimeOutMap = ref<Record<string, string>>({})
-const pendingMeta = ref<Record<string, { email: string; cellphone: string; institution: string; honorific?: string; designation?: string; gender?: string; city?: string; province?: string }>>({})
+const pendingMeta = ref<Record<string, { email: string; cellphone: string; institution: string; honorific?: string; designation?: string; gender?: string; city?: string; province?: string; purpose?: string }>>({})
 const currentTime = ref(new Date())
 const showToast = ref(false)
 let timer: any
@@ -456,6 +471,7 @@ const handleLogin = async () => {
   const submittedInstitution = institutionInput.value.trim()
   const submittedCity = cityInput.value.trim()
   const submittedProvince = provinceInput.value.trim()
+  const submittedPurpose = purposeInput.value.trim()
   const submittedGender = submittedHonorific === 'Mr' ? 'Male' : (submittedHonorific === 'Ms' || submittedHonorific === 'Mrs' ? 'Female' : '')
   const submittedContact =
     submittedEmail && submittedCellphone
@@ -476,6 +492,7 @@ const handleLogin = async () => {
       institution: submittedInstitution,
       city: submittedCity,
       province: submittedProvince,
+      purpose: submittedPurpose,
     })
 
     const localRow = {
@@ -489,6 +506,7 @@ const handleLogin = async () => {
       institution: submittedInstitution,
       city: submittedCity,
       province: submittedProvince,
+      purpose: submittedPurpose,
       time_in: createdLog?.time_in ?? new Date().toISOString(),
     }
 
@@ -502,6 +520,7 @@ const handleLogin = async () => {
       gender: submittedGender,
       city: submittedCity,
       province: submittedProvince,
+      purpose: submittedPurpose,
     }
 
     await refreshAttendanceData()
@@ -517,6 +536,7 @@ const handleLogin = async () => {
     institutionInput.value = ''
     cityInput.value = ''
     provinceInput.value = ''
+    purposeInput.value = ''
   } catch (err) {
     console.error('Attendance error:', err)
   } finally {
