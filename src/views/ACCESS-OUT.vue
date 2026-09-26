@@ -172,6 +172,46 @@
                   style="backdrop-filter: blur(6px);"
                 />
               </div>
+
+              <div
+                v-if="isRecording"
+                class="absolute inset-3 z-10 flex flex-col items-center justify-center gap-3 rounded-xl border border-red-300/30 bg-[#200909]/90 text-center shadow-[0_0_32px_rgba(239,68,68,0.2)] backdrop-blur-md"
+                role="status"
+                aria-live="polite"
+              >
+                <svg
+                  class="h-10 w-10 animate-spin text-red-300"
+                  viewBox="0 0 40 40"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <circle
+                    cx="20"
+                    cy="20"
+                    r="16"
+                    stroke="currentColor"
+                    stroke-opacity=".2"
+                    stroke-width="4"
+                  />
+                  <path
+                    d="M36 20a16 16 0 0 0-16-16"
+                    stroke="currentColor"
+                    stroke-width="4"
+                    stroke-linecap="round"
+                  />
+                </svg>
+                <div>
+                  <div class="text-sm font-black uppercase tracking-[0.18em] text-white">
+                    Recording Time Out
+                  </div>
+                  <div class="mt-1 text-xs font-medium text-red-100/75">
+                    Saving attendance to the database...
+                  </div>
+                </div>
+                <div class="h-1 w-32 overflow-hidden rounded-full bg-white/15">
+                  <div class="h-full w-1/2 animate-pulse rounded-full bg-red-300"></div>
+                </div>
+              </div>
             </div>
 
             <div class="shrink-0 bg-black/40 px-3 pb-3 pt-2">
@@ -544,6 +584,7 @@ const scannerInput = ref<HTMLInputElement | null>(null)
 const attendanceLogs = ref<any[]>([])
 const timedOutCount = ref(0)
 const isProcessing = ref(false)
+const isRecording = ref(false)
 const currentTime = ref(new Date())
 const attendanceType = ref('library')
 const showEventModal = ref(false)
@@ -907,24 +948,32 @@ const handleLogin = async (decodedText?: string) => {
 
   idInput.value = ''
   isProcessing.value = true
+  isRecording.value = true
 
   try {
     const result = await handleAttendanceOut(rawData)
+    isRecording.value = false
+    await nextTick()
 
-    if (result?.type === 'not_found') {
+    if (result.type === 'success') {
+      beepAudio.play().catch((error) => {
+        console.warn('Failed to play attendance success beep:', error)
+      })
+      await refreshAttendanceData()
+    } else if (result.type === 'not_found') {
       showAlert('Student Not Found', 'Invalid ID.', 'error')
-    } else if (result?.type === 'closed') {
+    } else if (result.type === 'closed') {
       showAlert('Closed', 'Library is closed.', 'error')
-    } else if (result?.type === 'already_done') {
+    } else if (result.type === 'already_done') {
       await reopenAlreadyDoneModal()
     } else {
-      beepAudio.play().catch(() => {})
-      await refreshAttendanceData()
+      showAlert('Error', result.message || 'Something went wrong.', 'error')
     }
   } catch (err) {
     console.error(err)
     showAlert('Error', 'Something went wrong.', 'error')
   } finally {
+    isRecording.value = false
     isProcessing.value = false
     clearAndRefocusScanner()
   }
