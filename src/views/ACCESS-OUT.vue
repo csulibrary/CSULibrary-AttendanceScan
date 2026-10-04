@@ -162,7 +162,7 @@
                   ref="scannerInput"
                   v-model="idInput"
                   type="text"
-                  placeholder="Scan or type ID..."
+                  placeholder="Scan ID..."
                   @input="handleInputChange"
                   @keydown="handleScannerKeydown"
                   @paste="handlePaste"
@@ -173,45 +173,6 @@
                 />
               </div>
 
-              <div
-                v-if="isRecording"
-                class="absolute inset-3 z-10 flex flex-col items-center justify-center gap-3 rounded-xl border border-red-300/30 bg-[#200909]/90 text-center shadow-[0_0_32px_rgba(239,68,68,0.2)] backdrop-blur-md"
-                role="status"
-                aria-live="polite"
-              >
-                <svg
-                  class="h-10 w-10 animate-spin text-red-300"
-                  viewBox="0 0 40 40"
-                  fill="none"
-                  aria-hidden="true"
-                >
-                  <circle
-                    cx="20"
-                    cy="20"
-                    r="16"
-                    stroke="currentColor"
-                    stroke-opacity=".2"
-                    stroke-width="4"
-                  />
-                  <path
-                    d="M36 20a16 16 0 0 0-16-16"
-                    stroke="currentColor"
-                    stroke-width="4"
-                    stroke-linecap="round"
-                  />
-                </svg>
-                <div>
-                  <div class="text-sm font-black uppercase tracking-[0.18em] text-white">
-                    Recording Time Out
-                  </div>
-                  <div class="mt-1 text-xs font-medium text-red-100/75">
-                    Saving attendance to the database...
-                  </div>
-                </div>
-                <div class="h-1 w-32 overflow-hidden rounded-full bg-white/15">
-                  <div class="h-full w-1/2 animate-pulse rounded-full bg-red-300"></div>
-                </div>
-              </div>
             </div>
 
             <div class="shrink-0 bg-black/40 px-3 pb-3 pt-2">
@@ -307,6 +268,50 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    v-if="isRecording"
+    class="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4 text-center backdrop-blur-sm"
+    role="status"
+    aria-live="polite"
+  >
+    <div
+      class="flex w-full max-w-lg flex-col items-center gap-6 rounded-3xl border border-red-300/40 bg-[#200909] px-8 py-10 shadow-[0_0_60px_rgba(239,68,68,0.3)] sm:px-12 sm:py-12"
+    >
+      <svg
+        class="h-20 w-20 animate-spin text-red-300 sm:h-24 sm:w-24"
+        viewBox="0 0 40 40"
+        fill="none"
+        aria-hidden="true"
+      >
+        <circle
+          cx="20"
+          cy="20"
+          r="16"
+          stroke="currentColor"
+          stroke-opacity=".2"
+          stroke-width="4"
+        />
+        <path
+          d="M36 20a16 16 0 0 0-16-16"
+          stroke="currentColor"
+          stroke-width="4"
+          stroke-linecap="round"
+        />
+      </svg>
+      <div>
+        <div class="text-2xl font-black uppercase tracking-[0.12em] text-white sm:text-3xl">
+          Recording Time Out
+        </div>
+        <div class="mt-3 text-base font-medium text-red-100/85 sm:text-lg">
+          Saving attendance to the database...
+        </div>
+      </div>
+      <div class="h-2 w-full max-w-xs overflow-hidden rounded-full bg-white/15">
+        <div class="h-full w-1/2 animate-pulse rounded-full bg-red-300"></div>
       </div>
     </div>
   </div>
